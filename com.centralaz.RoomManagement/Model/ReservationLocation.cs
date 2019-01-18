@@ -40,6 +40,9 @@ namespace com.centralaz.RoomManagement.Model
         public int LocationId { get; set; }
 
         [DataMember]
+        public int? LocationLayoutId { get; set; }
+
+        [DataMember]
         public ReservationLocationApprovalState ApprovalState { get; set; }
 
         #endregion
@@ -47,9 +50,12 @@ namespace com.centralaz.RoomManagement.Model
         #region Virtual Properties
 
         public virtual Reservation Reservation { get; set; }
-        
+
         [LavaInclude]
         public virtual Location Location { get; set; }
+
+        [LavaInclude]
+        public virtual LocationLayout LocationLayout { get; set; }
 
         #endregion
 
@@ -62,6 +68,7 @@ namespace com.centralaz.RoomManagement.Model
             this.ForeignKey = source.ForeignKey;
             this.ReservationId = source.ReservationId;
             this.LocationId = source.LocationId;
+            this.LocationLayout = source.LocationLayout;
             this.ApprovalState = source.ApprovalState;
             this.CreatedDateTime = source.CreatedDateTime;
             this.ModifiedDateTime = source.ModifiedDateTime;
@@ -86,6 +93,7 @@ namespace com.centralaz.RoomManagement.Model
         {
             this.HasRequired( r => r.Reservation ).WithMany( r => r.ReservationLocations ).HasForeignKey( r => r.ReservationId ).WillCascadeOnDelete( true );
             this.HasRequired( r => r.Location ).WithMany().HasForeignKey( r => r.LocationId ).WillCascadeOnDelete( false );
+            this.HasOptional( r => r.LocationLayout ).WithMany().HasForeignKey( r => r.LocationLayoutId ).WillCascadeOnDelete( false );
 
             // IMPORTANT!!
             this.HasEntitySetName( "ReservationLocation" );
