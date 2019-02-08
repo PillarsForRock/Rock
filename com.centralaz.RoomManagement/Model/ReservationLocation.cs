@@ -68,7 +68,7 @@ namespace com.centralaz.RoomManagement.Model
             this.ForeignKey = source.ForeignKey;
             this.ReservationId = source.ReservationId;
             this.LocationId = source.LocationId;
-            this.LocationLayout = source.LocationLayout;
+            this.LocationLayoutId = source.LocationLayoutId;
             this.ApprovalState = source.ApprovalState;
             this.CreatedDateTime = source.CreatedDateTime;
             this.ModifiedDateTime = source.ModifiedDateTime;

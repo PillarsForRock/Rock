@@ -246,7 +246,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 Id = l.Id,
                 Name = l.Name,
                 Description = l.Description,
-                LayoutPhoto = string.Format( photoFormat, l.LayoutPhotoId, GetAttributeValue( "LayoutImageHeight" ) ),
+                LayoutPhoto = l.LayoutPhotoId != null ? string.Format( photoFormat, l.LayoutPhotoId, GetAttributeValue( "LayoutImageHeight" ) ) : "",
                 IsActive = l.IsActive,
                 IsDefault = l.IsDefault
             } )

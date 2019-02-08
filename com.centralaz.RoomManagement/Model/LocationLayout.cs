@@ -53,6 +53,9 @@ namespace com.centralaz.RoomManagement.Model
         [DataMember]
         public bool IsDefault { get; set; }
 
+        [DataMember]
+        public bool IsSystem { get; set; }
+
         #endregion
 
         #region Virtual Properties

@@ -1,8 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="ReservationDetail.ascx.cs" Inherits="RockWeb.Plugins.com_centralaz.RoomManagement.ReservationDetail" %>
 <%@ Register TagPrefix="CentralAZ" Assembly="com.centralaz.RoomManagement" Namespace="com.centralaz.RoomManagement.Web.UI.Controls" %>
 <script type="text/javascript">
-    function clearActiveDialog()
-    {
+    function clearActiveDialog() {
         $('#<%=hfActiveDialog.ClientID %>').val('');
     }
 </script>
@@ -86,6 +85,7 @@
                                         <Rock:Grid ID="gViewLocations" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location">
                                             <Columns>
                                                 <Rock:RockBoundField DataField="Location" HeaderText="Location" />
+                                                <Rock:RockBoundField DataField="LocationLayout.Name" HeaderText="Layout" />
                                                 <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
                                             </Columns>
                                         </Rock:Grid>
@@ -140,11 +140,11 @@
                     <div class="actions">
                         <asp:LinkButton ID="btnEdit" runat="server" AccessKey="e" ToolTip="Alt+e" Text="Edit" CssClass="btn btn-primary" OnClick="btnEdit_OnClick" CausesValidation="false" />
                         <asp:LinkButton ID="btnDelete" runat="server" Text="Delete" CssClass="btn btn-link" OnClick="btnDelete_OnClick" CausesValidation="false" />
-						<div class="pull-right">
-                        	<asp:LinkButton ID="btnCopy" runat="server" Tooltip="Copy Reservation" CssClass="btn btn-default btn-sm fa fa-clone" OnClick="btnCopy_Click" CausesValidation="false" />
-                    	</div> 
+                        <div class="pull-right">
+                            <asp:LinkButton ID="btnCopy" runat="server" ToolTip="Copy Reservation" CssClass="btn btn-default btn-sm fa fa-clone" OnClick="btnCopy_Click" CausesValidation="false" />
+                        </div>
                     </div>
-                    
+
 
                 </asp:Panel>
 
@@ -221,6 +221,7 @@
                                     <Rock:Grid ID="gLocations" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location" ShowConfirmDeleteDialog="false" OnRowDataBound="gLocations_RowDataBound">
                                         <Columns>
                                             <Rock:RockBoundField DataField="Location" HeaderText="Location" />
+                                            <Rock:RockBoundField DataField="LocationLayout.Name" HeaderText="Layout" />
                                             <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
                                             <Rock:LinkButtonField CssClass="btn btn-success btn-sm" OnClick="gLocations_ApproveClick" Text="Approve" Visible="true" />
                                             <Rock:LinkButtonField CssClass="btn btn-danger btn-sm" OnClick="gLocations_DenyClick" Text="Deny" Visible="true" />
@@ -282,6 +283,11 @@
                 <div class="row">
                     <div class="col-md-6">
                         <CentralAZ:ScheduledLocationItemPicker ID="slpLocation" runat="server" Label="Location" Required="false" Enabled="false" AllowMultiSelect="false" OnSelectItem="slpLocation_SelectItem" ValidationGroup="ReservationLocation" />
+                        <div class="col-md-12 xs-text-center" style="width: 200px;">
+                            <div class="photo">
+                                <asp:Literal ID="lImage" runat="server" />
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <div class="row">
@@ -290,10 +296,24 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-12 xs-text-center" style="width: 200px;">
-                                <div class="photo">
-                                    <asp:Literal ID="lImage" runat="server" />
-                                </div>
+                            <div class="grid">
+                                <Rock:Grid ID="gLocationLayouts" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location Layout" OnRowDataBound="gLocationLayouts_RowDataBound">
+                                    <Columns>
+                                        <Rock:RockTemplateField>
+                                            <ItemTemplate>
+                                                <asp:HiddenField ID="hfLayoutId" runat="server" />
+                                                <asp:RadioButton ID="rbSelected" runat="server" OnCheckedChanged="rbSelected_CheckedChanged" AutoPostBack="true" />
+                                            </ItemTemplate>
+                                        </Rock:RockTemplateField>
+                                        <Rock:RockBoundField DataField="Name" HeaderText="Layout" />
+                                        <Rock:RockBoundField DataField="Description" HeaderText="Description" />
+                                        <Rock:RockTemplateField HeaderText="Photo">
+                                            <ItemTemplate>
+                                                <asp:Literal ID="lPhoto" runat="server" />
+                                            </ItemTemplate>
+                                        </Rock:RockTemplateField>
+                                    </Columns>
+                                </Rock:Grid>
                             </div>
                         </div>
                     </div>
