@@ -36,6 +36,7 @@ namespace RockWeb.Blocks.CheckIn
     [TextField( "Title", "Title to display. Use {0} for family/person name.", false, "{0}", "Text", 5 )]
     [TextField( "Sub Title", "Sub-Title to display. Use {0} for selected group/location name.", false, "{0}", "Text", 6 )]
     [TextField( "Caption", "", false, "Select Time(s)", "Text", 7 )]
+    [TextField( "No Option Message", "The message to display when there are not any options after processing the selection.", false, "Sorry, there are currently not any available options to check into.", "Text", 8 )]
 
     public partial class TimeSelect : CheckInBlock
     {
@@ -131,7 +132,7 @@ namespace RockWeb.Blocks.CheckIn
                     if ( distinctSchedules.Count == 1 )
                     {
                         personSchedules.ForEach( s => s.Selected = true );
-                        ProcessSelection( maWarning );
+                        ProcessSelection( false );
                     }
                     else
                     {
@@ -229,7 +230,7 @@ namespace RockWeb.Blocks.CheckIn
                 if ( schedules != null && schedules.Any() )
                 {
                     schedules.ForEach( s => s.Selected = true );
-                    ProcessSelection( maWarning, validateSelection );
+                    ProcessSelection( validateSelection );
                 }
             }
         }
@@ -243,5 +244,12 @@ namespace RockWeb.Blocks.CheckIn
         {
             CancelCheckin();
         }
+
+        private void ProcessSelection( bool validateSelection )
+        {
+            string msg = string.Format( "<p>{0}</p>", GetAttributeValue( "NoOptionMessage" ) );
+            ProcessSelection( maWarning, () => !CurrentCheckInState.CheckIn.CurrentFamily.GetPeople( true ).Any(), msg, validateSelection );
+        }
+
     }
 }
