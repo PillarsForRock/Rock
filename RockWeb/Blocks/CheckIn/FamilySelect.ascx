@@ -2,8 +2,13 @@
 
 <script type="text/javascript">
     Sys.Application.add_load(function () {
-        $('a.btn-checkin-select').click(function () {
+        var selected = false;
+        $('div.js-family-select').click(function () {
             $(this).siblings().attr('onclick', 'return false;');
+            if (!selected) {
+                selected = true;
+                eval($(this).data('target'));
+            }
         });
 
         if ($('#<%=hfShowEditFamilyPrompt.ClientID%>').val() == "1") {
@@ -43,7 +48,7 @@
                         <asp:Repeater ID="rSelection" runat="server" OnItemDataBound="rSelection_ItemDataBound">
                             <ItemTemplate>
                                 <%-- pnlSelectFamilyPostback will take care of firing the postback, and lSelectFamilyButtonHtml will be the button HTML from Lava  --%>
-                                <asp:Panel ID="pnlSelectFamilyPostback" runat="server">
+                                <asp:Panel ID="pnlSelectFamilyPostback" runat="server" CssClass="js-family-select">
                                     <asp:Literal ID="lSelectFamilyButtonHtml" runat="server" />
                                 </asp:Panel>
                             </ItemTemplate>
