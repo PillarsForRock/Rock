@@ -91,6 +91,8 @@ namespace Rock.Workflow.Action.CheckIn
 
                                 foreach ( var location in group.GetLocations( true ) )
                                 {
+                                    WriteToCheckInLog( checkInState, "processingLabels", $"Family:{family.Group.Name}[{family.Group.Id}]; Person:{person.Person.FullName}[{person.Person.Id}]; Area:{groupType.GroupType.Name}:[{groupType.GroupType.Id}]; Group:{group.Group.Name}[{group.Group.Id}]; Location:{location.Location.Name}[{location.Location.Id}]" );
+
                                     var locationLabels = GetLabels( location.Location, groupLabels );
 
                                     foreach ( var labelCache in locationLabels.OrderBy( l => l.LabelType ).ThenBy( l => l.Order ) )
@@ -120,6 +122,8 @@ namespace Rock.Workflow.Action.CheckIn
                                                 personLabelsAdded.Add( labelCache.Guid );
                                             }
                                         }
+
+                                        WriteToCheckInLog( checkInState, "startLabel", $"LabelGuid:{labelCache.Guid}" );
 
                                         var mergeObjects = new Dictionary<string, object>();
                                         foreach ( var keyValue in commonMergeFields )
@@ -186,6 +190,8 @@ namespace Rock.Workflow.Action.CheckIn
                                         }
 
                                         groupType.Labels.Add( label );
+
+                                        WriteToCheckInLog( checkInState, "endLabel", $"LabelGuid:{labelCache.Guid}" );
 
                                     }
                                 }

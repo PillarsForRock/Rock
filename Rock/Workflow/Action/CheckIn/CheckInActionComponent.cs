@@ -38,11 +38,32 @@ namespace Rock.Workflow.Action.CheckIn
 
             if ( entity is CheckInState )
             {
-                return (CheckInState)entity;
+                var checkInState = (CheckInState)entity;
+                WriteToCheckInLog( checkInState, "start" );
+                return checkInState;
             }
 
             errorMessages.Add( "Could not get CheckInState object" );
             return null;
+        }
+
+        /// <summary>
+        /// Logs a message
+        /// </summary>
+        protected void WriteToCheckInLog( CheckInState state, string sourceState )
+        {
+            WriteToCheckInLog( state, sourceState, string.Empty );
+        }
+
+        /// <summary>
+        /// Logs a message
+        /// </summary>
+        protected void WriteToCheckInLog( CheckInState state, string sourceState, string message )
+        {
+            if ( state != null && state.CheckInType != null && state.CheckInType.EnableLogging )
+            {
+                CheckInState.WriteToCheckInLog( state, "action", this.GetType().Name, sourceState, message );
+            }
         }
 
     }

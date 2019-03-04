@@ -281,6 +281,14 @@ namespace Rock.CheckIn
         /// </value>
         public string SuccessLavaTemplate => GetSetting( Rock.SystemKey.GroupTypeAttributeKey.CHECKIN_SUCCESS_LAVA_TEMPLATE );
 
+        /// <summary>
+        /// Gets a value indicating whether logging is enabled.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if logging is enabled; otherwise, <c>false</c>.
+        /// </value>
+        public bool EnableLogging => GetSetting( "core_checkin_EnableLogging" ).AsBoolean( false );
+
         #region registration
 
         /// <summary>

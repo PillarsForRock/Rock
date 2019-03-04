@@ -14,9 +14,10 @@
 // limitations under the License.
 // </copyright>
 //
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-
+using System.Text;
 using Newtonsoft.Json;
 
 namespace Rock.CheckIn
@@ -152,5 +153,71 @@ namespace Rock.CheckIn
           
         }
 
+        /// <summary>
+        /// Logs a message to an App_Data\Logs\checkin_yyyymmdd.csv file.
+        /// </summary>
+        public static void WriteToCheckInLog( CheckInState checkInState, string sourceType, string sourceName, string sourceState, string message )
+        {
+            if ( checkInState == null || checkInState.CheckInType == null || !checkInState.CheckInType.EnableLogging )
+            {
+                return;
+            }
+
+            try
+            {
+                string directory = AppDomain.CurrentDomain.BaseDirectory;
+                directory = System.IO.Path.Combine( directory, "App_Data", "Logs" );
+                if ( !System.IO.Directory.Exists( directory ) )
+                {
+                    System.IO.Directory.CreateDirectory( directory );
+                }
+
+                var when = RockDateTime.Now;
+                string fileName = $"checkin_{when:yyyyMMdd}.csv";
+                string filePath = System.IO.Path.Combine( directory, fileName );
+                if ( !System.IO.File.Exists( filePath ) )
+                {
+                    System.IO.File.AppendAllText( filePath, $"Time,Device,Family,Source,SourceName,SourceState,Message,CurrentSelection\r\n" );
+                }
+
+                var selection = new StringBuilder();
+                selection.Append( "Selection:" );
+
+                foreach ( var family in checkInState.CheckIn?.GetFamilies( true ) )
+                {
+                    selection.Append( $"Family:{family.Group.Name}[{family.Group.Id}] " );
+                    if ( family.CurrentPerson != null )
+                    {
+                        selection.Append( $"Current Person:{family.CurrentPerson.Person.FullName}[{family.CurrentPerson.Person.Id}] " );
+                    }
+
+                    foreach ( var person in family.GetPeople( true ) )
+                    {
+                        selection.Append( $"Person:{person.Person.FullName}[{person.Person.Id}] " );
+                        foreach ( var groupType in person.GetGroupTypes( true ) )
+                        {
+                            selection.Append( $"Group Type:{groupType.GroupType.Name}[{groupType.GroupType.Id}] " );
+                            foreach ( var group in groupType.GetGroups( true ) )
+                            {
+                                selection.Append( $"Group:{group.Group.Name}[{group.Group.Id}] " );
+                                foreach ( var location in group.GetLocations( true ) )
+                                {
+                                    selection.Append( $"Location:{location.Location.Name}[{location.Location.Id}] " );
+                                    foreach ( var schedule in location.GetSchedules( true ) )
+                                    {
+                                        selection.Append( $"Schedule:{schedule.Schedule.Name}[{schedule.Schedule.Id}] " );
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    string timeStr = when.ToString( "HH:mm:ss.fff" );
+                    System.IO.File.AppendAllText( filePath, $"{timeStr},{checkInState?.Kiosk?.Device?.Name}[{checkInState?.Kiosk?.Device?.Id}],FamilyId:{family.Group.Id},{sourceType},{sourceName},{sourceState},{message},{selection}\r\n" );
+
+                }
+            }
+            catch { }
+        }
     }
 }

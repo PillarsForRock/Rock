@@ -162,6 +162,8 @@
                                         Help="An optional regular expression that will be run against any search input before the search is performed. This is useful for removing any special characters." />
                                     <Rock:NumberBox ID="nbRefreshInterval" runat="server" Label="Refresh Interval" NumberType="Integer" 
                                         Help="How often (seconds) should the welcome page automatically refresh and check for updated configuration information." />
+                                    <Rock:RockCheckBox ID="cbEnableLogging" runat="server" Label="Enable Logging" Text="Yes" 
+                                        Help="Should all page request and workflow actions be logged during each check-in session. If enabled a log file will be created for each day in the /App_Data/Logs file. This should only be enabled when debugging a check-in issue." />
                                 </div>
                                 <div class="col-md-6">
                                     <Rock:RockCheckBox ID="cbAgeRequired" runat="server" Label="Age is Required" Text="Yes" 

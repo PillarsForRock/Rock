@@ -235,6 +235,7 @@ namespace RockWeb.Blocks.CheckIn.Config
                 groupType.SetAttributeValue( "core_checkin_RefreshInterval", nbRefreshInterval.Text );
                 groupType.SetAttributeValue( "core_checkin_RegularExpressionFilter", tbSearchRegex.Text );
                 groupType.SetAttributeValue( "core_checkin_ReuseSameCode", cbReuseCode.Checked.ToString() );
+                groupType.SetAttributeValue( "core_checkin_EnableLogging", cbEnableLogging.Checked.ToString() );
 
                 var searchType = DefinedValueCache.Get( ddlSearchType.SelectedValueAsInt() ?? 0 );
                 if ( searchType != null )
@@ -487,6 +488,7 @@ namespace RockWeb.Blocks.CheckIn.Config
                 nbRefreshInterval.Text = groupType.GetAttributeValue( "core_checkin_RefreshInterval" );
                 tbSearchRegex.Text = groupType.GetAttributeValue( "core_checkin_RegularExpressionFilter" );
                 cbReuseCode.Checked = groupType.GetAttributeValue( "core_checkin_ReuseSameCode" ).AsBoolean( false );
+                cbEnableLogging.Checked = groupType.GetAttributeValue( "core_checkin_EnableLogging" ).AsBoolean( false );
 
                 var searchType = DefinedValueCache.Get( groupType.GetAttributeValue( "core_checkin_SearchType" ).AsGuid() );
                 if ( searchType != null )
@@ -578,6 +580,7 @@ namespace RockWeb.Blocks.CheckIn.Config
             excludeList.Add( "core_checkin_AllowCheckout" );
             excludeList.Add( "core_checkin_AutoSelectDaysBack" );
             excludeList.Add( "core_checkin_AutoSelectOptions" );
+            excludeList.Add( "core_checkin_EnableLogging" );
 
             excludeList.Add( Rock.SystemKey.GroupTypeAttributeKey.CHECKIN_REGISTRATION_CANCHECKINKNOWNRELATIONSHIPTYPES );
             excludeList.Add( Rock.SystemKey.GroupTypeAttributeKey.CHECKIN_REGISTRATION_DISPLAYALTERNATEIDFIELDFORADULTS );

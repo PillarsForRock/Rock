@@ -255,6 +255,20 @@ namespace Rock.CheckIn
         }
 
         /// <summary>
+        /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
+        protected override void OnLoad( EventArgs e )
+        {
+            base.OnLoad( e );
+
+            if ( !Page.IsPostBack )
+            {
+                WriteToCheckInLog( "pageLoad" );
+            }
+        }
+
+        /// <summary>
         /// Activates and processes a workflow activity.  If the workflow has not yet been activated, it will
         /// also be activated
         /// </summary>
@@ -391,14 +405,19 @@ namespace Rock.CheckIn
         {
             var errors = new List<string>();
 
+            WriteToCheckInLog( "startProcessing" );
+
             string workflowActivity = GetAttributeValue( "WorkflowActivity" );
             if ( string.IsNullOrEmpty( workflowActivity ) || ProcessActivity( workflowActivity, out errors ) )
             {
+                WriteToCheckInLog( "endProcessing" );
                 SaveState();
                 NavigateToNextPage( validateSelectionRequired );
             }
             else
             {
+                WriteToCheckInLog( "endProcessing[error]", "error(s):" + errors.AsDelimited( ";" ) );
+
                 string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
                 modalAlert.Show( errorMsg.Replace( "'", @"\'" ), Rock.Web.UI.Controls.ModalAlertType.Warning );
             }
@@ -434,16 +453,22 @@ namespace Rock.CheckIn
         {
             var errors = new List<string>();
 
+            WriteToCheckInLog( "startProcessing" );
+
             string workflowActivity = GetAttributeValue( "WorkflowActivity" );
             if ( string.IsNullOrEmpty( workflowActivity ) || ProcessActivity( workflowActivity, out errors ) )
             {
                 if ( doNotProceedCondition() )
                 {
+                    WriteToCheckInLog( "endProcessing[doNotProceed]", conditionMessage );
+
                     modalAlert?.Show( conditionMessage, Rock.Web.UI.Controls.ModalAlertType.None );
                     return false;
                 }
                 else
                 {
+                    WriteToCheckInLog( "endProcessing" );
+
                     SaveState();
                     NavigateToNextPage( validateSelectionRequired );
                     return true;
@@ -451,6 +476,8 @@ namespace Rock.CheckIn
             }
             else
             {
+                WriteToCheckInLog( "endProcessing[error]", "error(s):" + errors.AsDelimited( ";" ) );
+
                 string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
                 modalAlert?.Show( errorMsg.Replace( "'", @"\'" ), Rock.Web.UI.Controls.ModalAlertType.Warning );
                 return false;
@@ -687,6 +714,25 @@ namespace Rock.CheckIn
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Logs a message
+        /// </summary>
+        private void WriteToCheckInLog( string sourceState )
+        {
+            WriteToCheckInLog( sourceState, string.Empty );
+        }
+
+        /// <summary>
+        /// Logs a message
+        /// </summary>
+        private void WriteToCheckInLog( string sourceState, string message)
+        {
+            if ( CurrentCheckInState != null && CurrentCheckInState.CheckInType != null && CurrentCheckInState.CheckInType.EnableLogging )
+            {
+                CheckInState.WriteToCheckInLog( CurrentCheckInState, "block", this.BlockCache.BlockType.Name, sourceState, message );
+            }
         }
 
         /// <summary>
