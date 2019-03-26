@@ -105,7 +105,7 @@
                             return false;
                         });
 
-                        $('.form-control').on('click', function () {
+                        $('.form-control').on('touchstart click', function () {
                             $('.input-group').removeClass("active");
                             $(this).closest('.input-group').addClass("active");
                         });
