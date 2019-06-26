@@ -390,6 +390,8 @@ namespace RockWeb.Blocks.Cms
         {
             RockContext rockContext = new RockContext();
             var contentItemService = new ContentChannelItemService( rockContext );
+            var contentItemAssociationService = new ContentChannelItemAssociationService( rockContext );
+            var contentItemSlugService = new ContentChannelItemSlugService( rockContext );
             ContentChannelItem contentItem = null;
 
             int contentItemId = hfId.Value.AsInteger();
@@ -402,8 +404,14 @@ namespace RockWeb.Blocks.Cms
 
             if (contentItem != null )
             {
-                contentItemService.Delete( contentItem );
-                rockContext.SaveChanges();
+                rockContext.WrapTransaction( () =>
+                {
+                    contentItemAssociationService.DeleteRange( contentItem.ChildItems );
+                    contentItemAssociationService.DeleteRange( contentItem.ParentItems );
+                    contentItemSlugService.DeleteRange( contentItem.ContentChannelItemSlugs );
+                    contentItemService.Delete( contentItem );
+                    rockContext.SaveChanges();
+                } );
             }
 
             ReturnToParentPage();
