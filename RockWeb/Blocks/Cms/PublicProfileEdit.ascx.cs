@@ -112,26 +112,34 @@ namespace RockWeb.Blocks.Cms
         DefaultBooleanValue = true,
         Order = 8 )]
 
+
+    [BooleanField(
+        "Show Email Preference",
+        Key = AttributeKey.ShowEmailPreference,
+        Description = "Show the email preference and allow it to be edited",
+        DefaultBooleanValue = true,
+        Order = 9 )]
+
     [BooleanField(
         "Show Communication Preference",
         Key = AttributeKey.ShowCommunicationPreference,
         Description = "Show the communication preference and allow it to be edited",
         DefaultBooleanValue = true,
-        Order = 9 )]
+        Order = 10 )]
 
     [LinkedPage(
         "Workflow Launch Page",
         Key = AttributeKey.WorkflowLaunchPage,
         Description = "Page used to launch the workflow to make a profile change request",
         IsRequired = false,
-        Order = 10 )]
+        Order = 11 )]
 
     [TextField(
         "Request Changes Text",
         Description = "The text to use for the request changes button (only displayed if there is a 'Workflow Launch Page' configured).",
         IsRequired = false,
         DefaultValue = "Request Additional Changes",
-        Order = 11,
+        Order = 12,
         Key = AttributeKey.RequestChangesText )]
 
     [AttributeField(
@@ -143,7 +151,7 @@ namespace RockWeb.Blocks.Cms
         Description = "The family attributes that should be displayed / edited.",
         IsRequired = false,
         AllowMultiple = true,
-        Order = 12 )]
+        Order = 13 )]
 
     [AttributeField(
         "Person Attributes (adults)",
@@ -152,7 +160,7 @@ namespace RockWeb.Blocks.Cms
         Description = "The person attributes that should be displayed / edited for adults.",
         IsRequired = false,
         AllowMultiple = true,
-        Order = 13 )]
+        Order = 14 )]
 
     [AttributeField(
         "Person Attributes (children)",
@@ -161,14 +169,14 @@ namespace RockWeb.Blocks.Cms
         Description = "The person attributes that should be displayed / edited for children.",
         IsRequired = false,
         AllowMultiple = true,
-        Order = 14 )]
+        Order = 15 )]
 
     [BooleanField(
         "Show Campus Selector",
         Key = AttributeKey.ShowCampusSelector,
         Description = "Allows selection of primary campus.",
         DefaultBooleanValue = false,
-        Order = 15 )]
+        Order = 16 )]
 
     [TextField(
         "Campus Selector Label",
@@ -176,7 +184,7 @@ namespace RockWeb.Blocks.Cms
         Description = "The label for the campus selector (only effective when \"Show Campus Selector\" is enabled).",
         IsRequired = false,
         DefaultValue = "Campus",
-        Order = 16 )]
+        Order = 17 )]
     #endregion
 
     public partial class PublicProfileEdit : RockBlock
@@ -192,6 +200,7 @@ namespace RockWeb.Blocks.Cms
             public const string PhoneTypes = "PhoneNumbers";
             public const string RequiredAdultPhoneTypes = "RequiredAdultPhoneTypes";
             public const string RequireAdultEmailAddress = "RequireAdultEmailAddress";
+            public const string ShowEmailPreference = "ShowEmailPreference";
             public const string ShowCommunicationPreference = "ShowCommunicationPreference";
             public const string WorkflowLaunchPage = "WorkflowLaunchPage";
             public const string RequestChangesText = "RequestChangesText";
@@ -1278,6 +1287,8 @@ namespace RockWeb.Blocks.Cms
                             }
                         }
                         tbEmail.Text = person.Email;
+
+                        rblEmailPreference.Visible = this.GetAttributeValue( AttributeKey.ShowEmailPreference ).AsBoolean();
                         rblEmailPreference.SelectedValue = person.EmailPreference.ConvertToString( false );
 
                         rblCommunicationPreference.Visible = this.GetAttributeValue( AttributeKey.ShowCommunicationPreference ).AsBoolean();
