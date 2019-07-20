@@ -24,7 +24,7 @@ using Rock.Plugin;
 
 namespace com.centralaz.RoomManagement.Migrations
 {
-    [MigrationNumber( 20, "1.6.0" )]
+    [MigrationNumber( 21, "1.6.0" )]
     public class LocationLayout : Migration
     {
         public override void Up()
@@ -74,10 +74,20 @@ namespace com.centralaz.RoomManagement.Migrations
                 ALTER TABLE [dbo].[_com_centralaz_RoomManagement_ReservationLocation] WITH CHECK ADD CONSTRAINT [FK__com_centralaz_RoomManagement_ReservationLocation_LocationLayoutId] FOREIGN KEY([LocationLayoutId])
                 REFERENCES [dbo].[_com_centralaz_RoomManagement_LocationLayout] ([Id])
 " );
-        }
+            // Page: Named Locations
+            RockMigrationHelper.UpdateBlockType( "Location Layout List", "A list of layouts tied to a location", "~/Plugins/com_centralaz/RoomManagement/LocationLayoutList.ascx", "com_centralaz > Room Management", "AA41242C-DF95-40E2-B184-0E024A07FDFF" );
+            // Add Block to Page: Named Locations, Site: Rock RMS
+            RockMigrationHelper.AddBlock( true, "2BECFB85-D566-464F-B6AC-0BE90189A418","","AA41242C-DF95-40E2-B184-0E024A07FDFF","Location Layout List","Main","","",1,"BA2F9650-C9E9-4819-8293-445AC14DAD81");   
+            // Attrib for BlockType: Location Layout List:Layout Image Height
+            RockMigrationHelper.UpdateBlockTypeAttribute("AA41242C-DF95-40E2-B184-0E024A07FDFF","A75DFC58-7A1B-4799-BF31-451B2BBE38FF","Layout Image Height","LayoutImageHeight","","",0,@"150","CB24F528-929E-45D5-BDB2-96DADD53BDEE");  
+            }
 
         public override void Down()
         {
+            RockMigrationHelper.DeleteAttribute( "CB24F528-929E-45D5-BDB2-96DADD53BDEE" );
+            RockMigrationHelper.DeleteBlock( "BA2F9650-C9E9-4819-8293-445AC14DAD81" );
+            RockMigrationHelper.DeleteBlockType( "AA41242C-DF95-40E2-B184-0E024A07FDFF" );
+
             Sql( @"
                 ALTER TABLE [dbo].[_com_centralaz_RoomManagement_ReservationLocation] DROP CONSTRAINT [FK__com_centralaz_RoomManagement_ReservationLocation_LocationLayoutId]
                 ALTER TABLE[dbo].[_com_centralaz_RoomManagement_ReservationLocation] DROP COLUMN[LocationLayoutId]" );
