@@ -93,8 +93,9 @@
     <Compile Include="Field\Types\ReportTemplateFieldType.cs" />
     <Compile Include="Field\Types\ReservationFieldType.cs" />
     <Compile Include="Jobs\FireWorkflowFromReservationInDateRange.cs" />
+    <Compile Include="Migrations\020_Bugfixes.cs" />
     <Compile Include="Lava\LavaFilters.cs" />
-    <Compile Include="Migrations\020_LocationLayout.cs" />
+    <Compile Include="Migrations\021_LocationLayout.cs" />
     <Compile Include="Model\LocationLayout.cs" />
     <Compile Include="Model\LocationLayoutService.cs" />
     <Compile Include="ReportTemplates\AdvancedReportTemplate.cs" />
@@ -180,7 +181,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets" />
   <!-- <Import Project="..\Build\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" /> -->
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
@@ -225,7 +226,7 @@
     <ItemGroup>
       <ZipFiles Include="$(BuildDir)\tmp\**" />
     </ItemGroup>
-    <!-- 
+    <!--
     	We're not incrementing here (only reading the version) because it should have already
       been incremented during the BeforeBuild tasks.
     -->
@@ -250,14 +251,14 @@
     <Error Condition="!Exists('..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
   </Target>
   <Target Name="UpdateAssemblyVersion" Condition="'$(Configuration)' == 'Release'">
-    <!-- 
-    	When creating a new version of this project, update the Build number 
+    <!--
+    	When creating a new version of this project, update the Build number
     	(and Major and Minor if needed) in the .version file to be the correct version.
     	The revision number will always be automatic.
     -->
-    <!-- 
+    <!--
       We'll increment the version number only during the "BeforeBuild" and then use this
-      new version number during the "AfterBuild" step for the zip and plugin packaging. 
+      new version number during the "AfterBuild" step for the zip and plugin packaging.
     -->
     <Version VersionFile="builds\.version" BuildType="Increment" RevisionType="None">
       <Output TaskParameter="Major" PropertyName="Major" />
