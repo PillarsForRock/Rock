@@ -95,6 +95,7 @@
     <Compile Include="Jobs\FireWorkflowFromReservationInDateRange.cs" />
     <Compile Include="Migrations\020_Bugfixes.cs" />
     <Compile Include="Lava\LavaFilters.cs" />
+    <Compile Include="Migrations\022_ReservationReports.cs" />
     <Compile Include="Migrations\021_LocationLayout.cs" />
     <Compile Include="Model\LocationLayout.cs" />
     <Compile Include="Model\LocationLayoutService.cs" />
