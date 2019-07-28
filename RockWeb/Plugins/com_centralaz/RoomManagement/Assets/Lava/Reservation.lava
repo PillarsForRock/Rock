@@ -84,6 +84,19 @@
 							{% assign approvalGroup = reservationLocation.Location | Attribute:'ApprovalGroup','Object' %}
 							{% capture linkToApprover %}<li><a href='/Group/{{approvalGroup.Id}}'>{{approvalGroup.Name}}</a> for {{reservationLocation.Location.Name}} </li>{% endcapture %}{% assign approvalNeededBy = approvalNeededBy | Append:linkToApprover %}
 							{% endif %}
+							{% if reservationLocation.LocationLayoutId != null %}
+							{% assign layout = reservationLocation.LocationLayout %}
+							<i class="fa fa-info-circle"
+							data-toggle="popover" 
+							data-html="true" 
+							data-trigger="hover click focus" 
+							data-delay="{&quot;hide&quot;: 1500}" 
+							data-placement="right" 
+							title="{{layout.Name}}" data-content="<p>{{layout.Description}}</p>{% if layout.LayoutPhotoId %}
+						<a href='/GetImage.ashx?id={{layout.LayoutPhotoId}}' target='_blank'><img src='/GetImage.ashx?id={{layout.LayoutPhotoId}}&maxwidth=200&maxheight=200'/></a>
+						{% endif %}"
+						></i>
+							{% endif %}
 						</li>
 						{% endfor %}
 						</ul>
