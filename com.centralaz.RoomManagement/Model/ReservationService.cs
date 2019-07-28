@@ -55,7 +55,13 @@ namespace com.centralaz.RoomManagement.Model
                 filterEndDateTime = filterEndDateTime.AddDays( 1 ).AddMilliseconds( -1 );
             }
 
-            var reservations = qry.ToList();
+            var reservations = qry.Where( r => r.Schedule.iCalendarContent.Contains( "RRULE" ) || r.Schedule.iCalendarContent.Contains( "RDATE" ) ||
+                        (
+                            r.Schedule.EffectiveStartDate >= qryStartDateTime &&
+                            r.Schedule.EffectiveEndDate <= qryEndDateTime )
+                        )
+                        .ToList();
+
             var reservationsWithDates = reservations
                 .Select( r => new ReservationDate
                 {
