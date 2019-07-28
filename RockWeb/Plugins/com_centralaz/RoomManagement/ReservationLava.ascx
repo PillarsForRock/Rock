@@ -190,7 +190,24 @@
                 </div>
 
                 <div class="pull-right">
-                    <asp:LinkButton ID="lbPrint" runat="server" CssClass="btn btn-link" Text="Print" OnClick="lbPrint_Click" />
+                    <%-- <Rock:ButtonDropDownList ID="ddlReservationReports" runat="server" Title="Print" CssClass="btn btn-primary " OnSelectionChanged="ddlReservationReports_SelectionChanged" />--%>
+                    <ul class="nav nav-actions action action-extended">
+                        <li class="dropdown">
+
+                            <a class="dropdown-toggle navbar-link btn btn-primary" href="#" data-toggle="dropdown">Print
+                            <b class="fa fa-caret-down"></b>
+                            </a>
+                            <ul id="ulReportDropDown" runat="server" enableviewstate="false" class="dropdown-menu dropdown-menu-right">
+                                <asp:Repeater runat="server" ID="rptReports" OnItemCommand="rptReports_ItemCommand">
+                                    <ItemTemplate>
+                                        <li>
+                                            <asp:LinkButton ID="btnReport" runat="server" Text='<%# Eval("Value") %>' CommandArgument='<%# Eval("Id") %>' />
+                                        </li>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
 
                 <asp:Literal ID="lOutput" runat="server"></asp:Literal>

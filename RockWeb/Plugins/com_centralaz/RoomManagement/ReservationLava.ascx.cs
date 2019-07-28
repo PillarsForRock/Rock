@@ -59,17 +59,13 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
     [CodeEditorField( "Lava Template", "Lava template to use to display the list of reservations.", CodeEditorMode.Lava, CodeEditorTheme.Rock, 400, true, @"{% include '~/Plugins/com_centralaz/RoomManagement/Assets/Lava/Reservation.lava' %}", "Lava Settings", 9 )]
     [BooleanField( "Enable Debug", "Display a list of merge fields available for lava.", false, "Lava Settings", 10 )]
 
-    [TextField( "Report Font", "", true, "Gotham", "Report Settings", 11 )]
-    [TextField( "Report Logo", "URL to the logo (PNG) to display in the printed report.", true, "~/Plugins/com_centralaz/RoomManagement/Assets/Icons/Central_Logo_Black_rgb_165_90.png", "Report Settings", 12 )]
-    [ReportTemplateField( "Report Template", "The template for the printed report. The Default and Advanced Templates will generate a printed report based on the templates' hardcoded layout. The Lava Template will generate a report based on the lava provided below in the Report Lava Setting. Any other custom templates will format based on their developer's documentation.", true, "9b74314a-37e0-40f2-906c-2862c93f8888", "Report Settings", 13 )]
-    [CodeEditorField( "Report Lava", "If the Lava Template is selected, this is the lava that will be used in the report", CodeEditorMode.Lava, CodeEditorTheme.Rock, 400, true, @"{% include '~/Plugins/com_centralaz/RoomManagement/Assets/Lava/ReservationReport.lava' %}", "Report Settings", 14 )]
-
     [CustomDropdownListField( "Default View Option", "Determines the default view option", "Day,Week,Month", true, "Week", order: 15, category: "View Settings" )]
     [DayOfWeekField( "Start of Week Day", "Determines what day is the start of a week.", true, DayOfWeek.Sunday, order: 16, category: "View Settings" )]
     [BooleanField( "Show Small Calendar", "Determines whether the calendar widget is shown", true, order: 17, category: "View Settings" )]
     [BooleanField( "Show Day View", "Determines whether the day view option is shown", false, order: 18, category: "View Settings" )]
     [BooleanField( "Show Week View", "Determines whether the week view option is shown", true, order: 19, category: "View Settings" )]
     [BooleanField( "Show Month View", "Determines whether the month view option is shown", true, order: 20, category: "View Settings" )]
+    [DefinedValueField( "13B169EA-A090-45FF-8B11-A9E02776E35E", "Visible Report Options", "The Reservation Reports that the user is able to select", true, true, "", "View Settings", 21 )]
 
     public partial class ReservationLava : Rock.Web.UI.RockBlock
     {
@@ -153,7 +149,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
             // register lbPrint as a PostBackControl since it is returning a File download
             ScriptManager scriptManager = ScriptManager.GetCurrent( Page );
-            scriptManager.RegisterPostBackControl( lbPrint );
+            scriptManager.RegisterPostBackControl( rptReports );
 
             RockPage.AddScriptLink( "~/Plugins/com_centralaz/RoomManagement/Assets/Scripts/circle-progress.js", fingerprint: false );
         }
@@ -168,10 +164,16 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
             nbMessage.Visible = false;
 
+            var definedTypeCache = DefinedTypeCache.Get( "13B169EA-A090-45FF-8B11-A9E02776E35E" );
+            var selectedReports = GetAttributeValue( "VisibleReportOptions" ).SplitDelimitedValues().AsGuidList();
+            rptReports.DataSource = definedTypeCache.DefinedValues.Where( dv => selectedReports.Contains( dv.Guid ) ).ToList();
+            rptReports.DataBind();
+
             if ( !Page.IsPostBack )
             {
                 if ( SetFilterControls() )
                 {
+
                     pnlDetails.Visible = true;
                     BindData();
                 }
@@ -348,29 +350,21 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
         }
 
-        protected void lbPrint_Click( object sender, EventArgs e )
+        //protected void ddlReservationReports_SelectionChanged( object sender, EventArgs e )
+        //{
+        //    var definedValueId = ddlReservationReports.SelectedValueAsId();
+        //    if ( definedValueId.HasValue )
+        //    {
+        //        PrintReport( definedValueId.Value );
+        //    }
+        //}
+        protected void rptReports_ItemCommand( object source, RepeaterCommandEventArgs e )
         {
-            List<ReservationService.ReservationSummary> reservationSummaryList = GetReservationSummaries();
-
-            string logoFileUrl = GetAttributeValue( "ReportLogo" );
-            if ( !logoFileUrl.ToLower().StartsWith( "http" ) )
+            var definedValueId = e.CommandArgument.ToString().AsIntegerOrNull();
+            if ( definedValueId.HasValue )
             {
-                logoFileUrl = Server.MapPath( ResolveRockUrl( logoFileUrl ) );
+                PrintReport( definedValueId.Value );
             }
-
-            var reportTemplate = GetReportTemplate( GetAttributeValue( "ReportTemplate" ).AsGuidOrNull() );
-
-            var outputArray = reportTemplate.GenerateReport( reservationSummaryList, logoFileUrl, GetAttributeValue( "ReportFont" ), FilterStartDate, FilterEndDate, GetAttributeValue( "ReportLava" ) );
-
-            Response.ClearHeaders();
-            Response.ClearContent();
-            Response.Clear();
-            Response.ContentType = "application/pdf";
-            Response.AddHeader( "Content-Disposition", string.Format( "attachment;filename=Reservation Schedule for {0} - {1}.pdf", FilterStartDate.Value.ToString( "MMMM d" ), FilterEndDate.Value.ToString( "MMMM d" ) ) );
-            Response.BinaryWrite( outputArray );
-            Response.Flush();
-            Response.End();
-            return;
         }
 
         #endregion
@@ -431,6 +425,38 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 lDebug.Text = string.Empty;
             }
 
+        }
+
+        protected void PrintReport( int definedValueId )
+        {
+            var definedValue = new DefinedValueService( new RockContext() ).Get( definedValueId );
+            definedValue.LoadAttributes();
+
+            var logoFileUrl = definedValue.GetAttributeValue( "ReportLogo" );
+            var reportTemplateGuid = definedValue.GetAttributeValue( "ReportTemplate" ).AsGuidOrNull();
+            var reportFont = definedValue.GetAttributeValue( "ReportFont" );
+            var reportLava = definedValue.GetAttributeValue( "Lava" );
+
+            List<ReservationService.ReservationSummary> reservationSummaryList = GetReservationSummaries();
+
+            if ( !logoFileUrl.ToLower().StartsWith( "http" ) )
+            {
+                logoFileUrl = Server.MapPath( ResolveRockUrl( logoFileUrl ) );
+            }
+
+            var reportTemplate = GetReportTemplate( reportTemplateGuid );
+
+            var outputArray = reportTemplate.GenerateReport( reservationSummaryList, logoFileUrl, reportFont, FilterStartDate, FilterEndDate, reportLava );
+
+            Response.ClearHeaders();
+            Response.ClearContent();
+            Response.Clear();
+            Response.ContentType = "application/pdf";
+            Response.AddHeader( "Content-Disposition", string.Format( "attachment;filename=Reservation Schedule for {0} - {1}.pdf", FilterStartDate.Value.ToString( "MMMM d" ), FilterEndDate.Value.ToString( "MMMM d" ) ) );
+            Response.BinaryWrite( outputArray );
+            Response.Flush();
+            Response.End();
+            return;
         }
 
         private List<ReservationService.ReservationSummary> GetReservationSummaries()
@@ -722,5 +748,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         }
 
         #endregion
+
+
     }
 }

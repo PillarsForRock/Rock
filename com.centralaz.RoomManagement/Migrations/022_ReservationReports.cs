@@ -17,6 +17,7 @@
 using System;
 using System.Data.Entity;
 using System.Linq;
+using System.Text;
 using com.centralaz.RoomManagement.ReportTemplates;
 using Rock;
 using Rock.Data;
@@ -31,7 +32,7 @@ namespace com.centralaz.RoomManagement.Migrations
     {
         public override void Up()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
             RockMigrationHelper.UpdateCategory( Rock.SystemGuid.EntityType.DEFINED_TYPE, "Room Management", "", "", "731C5F16-62EA-4DE0-A1FC-6EE2263BF816" );
             RockMigrationHelper.AddDefinedType( "Room Management", "Reservation Reports", "Printable Reports used by the Room Management System", "13B169EA-A090-45FF-8B11-A9E02776E35E", @"" );
             RockMigrationHelper.AddDefinedTypeAttribute( "13B169EA-A090-45FF-8B11-A9E02776E35E", "1D0D3794-C210-48A8-8C68-3FBEC08A6BA5", "Lava", "Lava", "If the Lava Template is selected, this is the lava that will be used in the report", 3, "", "2F0BEBBA-B890-46B1-8C36-A3F7CE9A36B9" );
@@ -55,7 +56,11 @@ namespace com.centralaz.RoomManagement.Migrations
                 " );
             int? blockId = blockIdSql.ToString().AsIntegerOrNull();
 
-            //TODO: We need to standardize these block attributes
+            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "9C204CD0-1233-41C5-818A-C5DA439445AA", "Report Font", "ReportFont", "", "", 11, @"Gotham", "B9DA1FF2-10EA-4466-BD67-A4D62E03D703" );
+            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "9C204CD0-1233-41C5-818A-C5DA439445AA", "Report Logo", "ReportLogo", "", "URL to the logo (PNG) to display in the printed report.", 12, @"~/Plugins/com_centralaz/RoomManagement/Assets/Icons/Central_Logo_Black_rgb_165_90.png", "C05E0362-6C49-4D59-8DB7-7DCADAF19FDD" );
+            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "6B88A513-4B4C-403B-ADFA-82C3A2B1C3B8", "Report Template", "ReportTemplate", "", "The template for the printed report. The Default and Advanced Templates will generate a printed report based on the templates' hardcoded layout. The Lava Template will generate a report based on the lava provided below in the Report Lava Setting. Any other custom templates will format based on their developer's documentation.", 13, @"9b74314a-37e0-40f2-906c-2862c93f8888", "8E2EE6F2-54FC-4C3A-9C9A-54CEA34544F7" );
+            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "1D0D3794-C210-48A8-8C68-3FBEC08A6BA5", "Report Lava", "ReportLava", "", "If the Lava Template is selected, this is the lava that will be used in the report", 14, @"{% include '~/Plugins/com_centralaz/RoomManagement/Assets/Lava/ReservationReport.lava' %}", "69131013-4E48-468E-B2C2-CF19CEA26590" );
+
             var defaultFont = GetAttributeValueFromBlock( blockId, "B9DA1FF2-10EA-4466-BD67-A4D62E03D703".AsGuid() );
             var defaultLogo = GetAttributeValueFromBlock( blockId, "C05E0362-6C49-4D59-8DB7-7DCADAF19FDD".AsGuid() );
             var selectedReportTemplateGuid = GetAttributeValueFromBlock( blockId, "8E2EE6F2-54FC-4C3A-9C9A-54CEA34544F7".AsGuid() );
@@ -116,7 +121,12 @@ namespace com.centralaz.RoomManagement.Migrations
                 }
             }
 
-            //TODO: Add new Block Attribute, dynamically build string of visible dropdown items
+            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "59D5A94C-94A0-4630-B80A-BB25697D74C7", "Visible Report Options", "VisibleReportOptions", "", "The Reservation Reports that the user is able to select", 21, @"", "BB36C64E-E379-4B34-BC91-BD65FCEEBBF7" );
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append( "97a7ffda-1b75-473f-a680-c9a7602b5c60," );
+            sb.Append( selectedDefinedValueGuid );
+            RockMigrationHelper.AddBlockAttributeValue( "F71B7715-EBF5-4CDF-867E-B1018B2AECD5", "BB36C64E-E379-4B34-BC91-BD65FCEEBBF7", sb.ToString() );
         }
 
         public override void Down()
