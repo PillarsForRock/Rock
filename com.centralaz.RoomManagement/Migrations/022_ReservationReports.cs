@@ -127,6 +127,31 @@ namespace com.centralaz.RoomManagement.Migrations
             sb.Append( "97a7ffda-1b75-473f-a680-c9a7602b5c60," );
             sb.Append( selectedDefinedValueGuid );
             RockMigrationHelper.AddBlockAttributeValue( "F71B7715-EBF5-4CDF-867E-B1018B2AECD5", "BB36C64E-E379-4B34-BC91-BD65FCEEBBF7", sb.ToString() );
+
+            // Page: Reservation Reports
+            RockMigrationHelper.AddPage("0FF1D7F4-BF6D-444A-BD71-645BD764EC40","D65F783D-87A9-4CC9-8110-E83466A0EADB","Reservation Reports","","267C476B-16F7-4201-9453-5784E2B4C98F","fa fa-file-alt"); // Site:Rock RMS
+            RockMigrationHelper.UpdateBlockType( "Defined Type Detail", "Displays the details of the given defined type.", "~/Blocks/Core/DefinedTypeDetail.ascx", "Core", "08C35F15-9AF7-468F-9D50-CDFD3D21220C" );
+            RockMigrationHelper.UpdateBlockType( "Defined Value List", "Block for viewing values for a defined type.", "~/Blocks/Core/DefinedValueList.ascx", "Core", "0AB2D5E9-9272-47D5-90E4-4AA838D2D3EE" );
+            // Add Block to Page: Reservation Reports, Site: Rock RMS
+            RockMigrationHelper.AddBlock( true, "267C476B-16F7-4201-9453-5784E2B4C98F","","08C35F15-9AF7-468F-9D50-CDFD3D21220C","Defined Type Detail","Main","","",0,"41F4477E-2D32-4202-8BD8-60A473D96DF7");   
+            // Add Block to Page: Reservation Reports, Site: Rock RMS
+            RockMigrationHelper.AddBlock( true, "267C476B-16F7-4201-9453-5784E2B4C98F","","0AB2D5E9-9272-47D5-90E4-4AA838D2D3EE","Defined Value List","Main","","",1,"B22FB153-BFEE-486C-85CC-7FE9D375E35F");   
+            // Attrib for BlockType: Defined Type Detail:Defined Type
+            RockMigrationHelper.UpdateBlockTypeAttribute("08C35F15-9AF7-468F-9D50-CDFD3D21220C","BC48720C-3610-4BCF-AE66-D255A17F1CDF","Defined Type","DefinedType","","If a Defined Type is set, only details for it will be displayed (regardless of the querystring parameters).",0,@"","0305EF98-C791-4626-9996-F189B9BB674C");  
+            // Attrib for BlockType: Defined Value List:core.CustomGridColumnsConfig
+            RockMigrationHelper.UpdateBlockTypeAttribute("0AB2D5E9-9272-47D5-90E4-4AA838D2D3EE","9C204CD0-1233-41C5-818A-C5DA439445AA","core.CustomGridColumnsConfig","core.CustomGridColumnsConfig","","",0,@"","87DAF7ED-AAF5-4D5C-8339-CB30B16CC9FF");  
+            // Attrib for BlockType: Defined Value List:Defined Type
+            RockMigrationHelper.UpdateBlockTypeAttribute("0AB2D5E9-9272-47D5-90E4-4AA838D2D3EE","BC48720C-3610-4BCF-AE66-D255A17F1CDF","Defined Type","DefinedType","","If a Defined Type is set, only its Defined Values will be displayed (regardless of the querystring parameters).",0,@"","9280D61F-C4F3-4A3E-A9BB-BCD67FF78637");  
+            // Attrib for BlockType: Defined Value List:core.CustomGridEnableStickyHeaders
+            RockMigrationHelper.UpdateBlockTypeAttribute("0AB2D5E9-9272-47D5-90E4-4AA838D2D3EE","1EDAFDED-DFE6-4334-B019-6EECBA89E05A","core.CustomGridEnableStickyHeaders","core.CustomGridEnableStickyHeaders","","",0,@"False","2CD75CE0-D3C8-470D-8DE1-A2964AB98887");  
+            // Attrib Value for Block:Defined Type Detail, Attribute:Defined Type Page: Reservation Reports, Site: Rock RMS
+            RockMigrationHelper.AddBlockAttributeValue("41F4477E-2D32-4202-8BD8-60A473D96DF7","0305EF98-C791-4626-9996-F189B9BB674C",@"13B169EA-A090-45FF-8B11-A9E02776E35E");  
+            // Attrib Value for Block:Defined Value List, Attribute:Defined Type Page: Reservation Reports, Site: Rock RMS
+            RockMigrationHelper.AddBlockAttributeValue("B22FB153-BFEE-486C-85CC-7FE9D375E35F","9280D61F-C4F3-4A3E-A9BB-BCD67FF78637",@"13B169EA-A090-45FF-8B11-A9E02776E35E");  
+            // Attrib Value for Block:Defined Value List, Attribute:core.CustomGridColumnsConfig Page: Reservation Reports, Site: Rock RMS
+            RockMigrationHelper.AddBlockAttributeValue("B22FB153-BFEE-486C-85CC-7FE9D375E35F","87DAF7ED-AAF5-4D5C-8339-CB30B16CC9FF",@"");  
+            // Attrib Value for Block:Defined Value List, Attribute:core.CustomGridEnableStickyHeaders Page: Reservation Reports, Site: Rock RMS
+            RockMigrationHelper.AddBlockAttributeValue("B22FB153-BFEE-486C-85CC-7FE9D375E35F","2CD75CE0-D3C8-470D-8DE1-A2964AB98887",@"False");  
         }
 
         public override void Down()
