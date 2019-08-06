@@ -77,36 +77,34 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="row">
-                                <div class="col-md-6">
 
-                                    <div class="grid">
-                                        <label class="control-label">Locations</label>
-                                        <Rock:Grid ID="gViewLocations" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location">
-                                            <Columns>
-                                                <Rock:RockBoundField DataField="Location" HeaderText="Location" />
-                                                <Rock:RockBoundField DataField="LocationLayout.Name" HeaderText="Layout" />
-                                                <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
-                                            </Columns>
-                                        </Rock:Grid>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
+                            <div class="grid">
+                                <label class="control-label">Locations</label>
+                                <Rock:Grid ID="gViewLocations" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location">
+                                    <Columns>
+                                        <Rock:RockBoundField DataField="Location" HeaderText="Location" />
+                                        <Rock:RockBoundField DataField="LocationLayout.Name" HeaderText="Layout" />
+                                        <Rock:RockBoundField DataField="LocationLayout.Description" HeaderText="Description" />
+                                        <Rock:RockTemplateField HeaderText="Photo">
+                                            <ItemTemplate><a href='/GetImage.ashx?id=<%# Eval( "LocationLayout.LayoutPhotoId") %>' target='_blank'><img src='/GetImage.ashx?id=<%# Eval( "LocationLayout.LayoutPhotoId") %>&maxwidth=150&maxheight=150'/></a></ItemTemplate>
+                                        </Rock:RockTemplateField>
+                                        <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
+                                    </Columns>
+                                </Rock:Grid>
+                            </div>
 
-                                    <div class="grid">
-                                        <label class="control-label">Resources</label>
-                                        <Rock:Grid ID="gViewResources" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Resource">
-                                            <Columns>
-                                                <Rock:RockBoundField DataField="Resource.Name" HeaderText="Resource" />
-                                                <Rock:RockTemplateField>
-                                                    <ItemTemplate><em class="text-muted"><%# Convert.ToString( Eval( "Resource.Location.Name") ) == string.Empty ? "" : "(attached to " +  Eval("Resource.Location.Name") + ")" %></em></ItemTemplate>
-                                                </Rock:RockTemplateField>
-                                                <Rock:RockBoundField DataField="Quantity" HeaderText="Qty" />
-                                                <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
-                                            </Columns>
-                                        </Rock:Grid>
-                                    </div>
-                                </div>
+                            <div class="grid">
+                                <label class="control-label">Resources</label>
+                                <Rock:Grid ID="gViewResources" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Resource">
+                                    <Columns>
+                                        <Rock:RockBoundField DataField="Resource.Name" HeaderText="Resource" />
+                                        <Rock:RockTemplateField>
+                                            <ItemTemplate><em class="text-muted"><%# Convert.ToString( Eval( "Resource.Location.Name") ) == string.Empty ? "" : "(attached to " +  Eval("Resource.Location.Name") + ")" %></em></ItemTemplate>
+                                        </Rock:RockTemplateField>
+                                        <Rock:RockBoundField DataField="Quantity" HeaderText="Qty" />
+                                        <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
+                                    </Columns>
+                                </Rock:Grid>
                             </div>
 
                             <Rock:RockLiteral ID="lNotes" runat="server" Label="Notes" />
