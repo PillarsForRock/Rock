@@ -40,6 +40,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.html.simpleparser;
 using com.centralaz.RoomManagement.ReportTemplates;
+using System.Web;
 
 namespace RockWeb.Plugins.com_centralaz.RoomManagement
 {
@@ -350,14 +351,6 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
         }
 
-        //protected void ddlReservationReports_SelectionChanged( object sender, EventArgs e )
-        //{
-        //    var definedValueId = ddlReservationReports.SelectedValueAsId();
-        //    if ( definedValueId.HasValue )
-        //    {
-        //        PrintReport( definedValueId.Value );
-        //    }
-        //}
         protected void rptReports_ItemCommand( object source, RepeaterCommandEventArgs e )
         {
             var definedValueId = e.CommandArgument.ToString().AsIntegerOrNull();
