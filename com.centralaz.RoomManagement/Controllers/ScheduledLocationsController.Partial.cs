@@ -96,7 +96,6 @@ namespace Rock.Rest.Controllers
             {
                 if ( location.IsAuthorized( Rock.Security.Authorization.VIEW, person ) )
                 {
-                    var ancestorIds = locationService.GetAllAncestorIds( location.Id );
                     locationList.Add( location );
                     var treeViewItem = new TreeViewItem();
                     treeViewItem.Id = location.Id.ToString();
