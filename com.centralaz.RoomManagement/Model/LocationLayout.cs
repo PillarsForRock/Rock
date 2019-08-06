@@ -21,6 +21,8 @@ using System.Runtime.Serialization;
 using Rock.Model;
 using Rock.Data;
 using System.ComponentModel.DataAnnotations;
+using System.Web;
+using System.Text;
 
 namespace com.centralaz.RoomManagement.Model
 {
@@ -60,6 +62,21 @@ namespace com.centralaz.RoomManagement.Model
 
         #region Virtual Properties
 
+        [LavaInclude]
+        [NotMapped]
+        public virtual string LayoutPhotoUrl
+        {
+            get
+            {
+                return LocationLayout.GetLayoutPhotoUrl( this );
+            }
+
+            private set
+            {
+                // intentionally blank
+            }
+        }
+
         public virtual BinaryFile LayoutPhoto { get; set; }
 
         [DataMember]
@@ -68,6 +85,95 @@ namespace com.centralaz.RoomManagement.Model
         #endregion
 
         #region Methods
+
+        public static string GetLayoutPhotoUrl( LocationLayout locationLayout, int? maxWidth = null, int? maxHeight = null )
+        {
+            return GetLayoutPhotoUrl( locationLayout.Id, locationLayout.LayoutPhotoId, maxWidth, maxHeight );
+        }
+
+        public static string GetLayoutPhotoUrl( int locationLayoutId, int? maxWidth = null, int? maxHeight = null )
+        {
+            using ( RockContext rockContext = new RockContext() )
+            {
+                LocationLayout locationLayout = new LocationLayoutService( rockContext ).Get( locationLayoutId );
+                return GetLayoutPhotoUrl( locationLayout, maxWidth, maxHeight );
+            }
+        }
+
+        public static string GetLayoutPhotoUrl( int? locationLayoutId, int? layoutPhotoId, int? maxWidth = null, int? maxHeight = null )
+        {
+            string virtualPath = string.Empty;
+            if ( layoutPhotoId.HasValue )
+            {
+                string widthHeightParams = string.Empty;
+                if ( maxWidth.HasValue )
+                {
+                    widthHeightParams += string.Format( "&maxwidth={0}", maxWidth.Value );
+                }
+
+                if ( maxHeight.HasValue )
+                {
+                    widthHeightParams += string.Format( "&maxheight={0}", maxHeight.Value );
+                }
+
+                virtualPath = string.Format( "~/GetImage.ashx?id={0}" + widthHeightParams, layoutPhotoId );
+            }
+
+            if ( System.Web.HttpContext.Current == null )
+            {
+                return virtualPath;
+            }
+            else
+            {
+                return VirtualPathUtility.ToAbsolute( virtualPath );
+            }
+        }
+
+        public static string GetLayoutPhotoImageTag( LocationLayout locationLayout, int? maxWidth = null, int? maxHeight = null, string altText = "", string className = "" )
+        {
+            if ( locationLayout != null )
+            {
+                return GetLayoutPhotoImageTag( locationLayout.Id, locationLayout.LayoutPhotoId, maxWidth, maxHeight, altText, className );
+            }
+            else
+            {
+                return GetLayoutPhotoImageTag( null, null, maxWidth, maxHeight, altText, className );
+            }
+
+        }
+
+        public static string GetLayoutPhotoImageTag( int? locationLayoutId, int? layoutPhotoId, int? maxWidth = null, int? maxHeight = null, string altText = "", string className = "" )
+        {
+            var photoUrl = new StringBuilder();
+
+            photoUrl.Append( VirtualPathUtility.ToAbsolute( "~/" ) );
+
+            string styleString = string.Empty;
+
+            string altString = string.IsNullOrWhiteSpace( altText ) ? string.Empty :
+                string.Format( " alt='{0}'", altText );
+
+            string classString = string.IsNullOrWhiteSpace( className ) ? string.Empty :
+                string.Format( " class='{0}'", className );
+
+            if ( layoutPhotoId.HasValue )
+            {
+                photoUrl.AppendFormat( "GetImage.ashx?id={0}", layoutPhotoId );
+                if ( maxWidth.HasValue )
+                {
+                    photoUrl.AppendFormat( "&maxwidth={0}", maxWidth.Value );
+                }
+
+                if ( maxHeight.HasValue )
+                {
+                    photoUrl.AppendFormat( "&maxheight={0}", maxHeight.Value );
+                }
+
+                return string.Format( "<img src='{0}'{1}{2}{3}/>", photoUrl.ToString(), styleString, altString, classString );
+            }
+
+            return string.Empty;
+        }
 
         public void CopyPropertiesFrom( LocationLayout source )
         {

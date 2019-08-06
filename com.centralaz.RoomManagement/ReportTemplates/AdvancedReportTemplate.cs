@@ -19,12 +19,14 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
+using System.Web;
 using com.centralaz.RoomManagement.Model;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Rock;
 using Rock.Data;
 using Rock.Model;
+using Rock.Web.Cache;
 
 namespace com.centralaz.RoomManagement.ReportTemplates
 {
@@ -139,7 +141,7 @@ namespace com.centralaz.RoomManagement.ReportTemplates
                     document.Add( new Paragraph( listHeader, listHeaderFont ) );
 
                     //Build Subheaders
-                    var listSubHeaderTable = new PdfPTable( 4 );
+                    var listSubHeaderTable = new PdfPTable( 7 );
                     listSubHeaderTable.LockedWidth = true;
                     listSubHeaderTable.TotalWidth = PageSize.A4.Rotate().Width - document.LeftMargin - document.RightMargin;
                     listSubHeaderTable.HorizontalAlignment = 0;
@@ -152,6 +154,9 @@ namespace com.centralaz.RoomManagement.ReportTemplates
                     listSubHeaderTable.AddCell( new Phrase( "Event Start/End", listSubHeaderFont ) );
                     listSubHeaderTable.AddCell( new Phrase( "Event", listSubHeaderFont ) );
                     listSubHeaderTable.AddCell( new Phrase( "Location", listSubHeaderFont ) );
+                    listSubHeaderTable.AddCell( new Phrase( "Layout", listSubHeaderFont ) );
+                    listSubHeaderTable.AddCell( new Phrase( "Description", listSubHeaderFont ) );
+                    listSubHeaderTable.AddCell( new Phrase( "Photo", listSubHeaderFont ) );
                     listSubHeaderTable.AddCell( new Phrase( "Ministry / Contact Info", listSubHeaderFont ) );
                     PageEventHandler.IsHeaderShown = true;
                     document.Add( listSubHeaderTable );
@@ -167,7 +172,7 @@ namespace com.centralaz.RoomManagement.ReportTemplates
                             }
 
                             //Build the list item table
-                            var listItemTable = new PdfPTable( 4 );
+                            var listItemTable = new PdfPTable( 7 );
                             listItemTable.LockedWidth = true;
                             listItemTable.TotalWidth = PageSize.A4.Rotate().Width - document.LeftMargin - document.RightMargin;
                             listItemTable.HorizontalAlignment = 0;
@@ -185,26 +190,44 @@ namespace com.centralaz.RoomManagement.ReportTemplates
                             listItemTable.AddCell( new Phrase( reservationSummary.EventDateTimeDescription, listItemFontNormal ) );
 
                             listItemTable.AddCell( new Phrase( reservationSummary.ReservationName, listItemFontNormal ) );
+                            listItemTable.AddCell( new Phrase( reservationLocation.Location != null ? reservationLocation.Location.Name : string.Empty, listItemFontNormal ) );
+                            listItemTable.AddCell( new Phrase( reservationLocation.LocationLayout != null ? reservationLocation.LocationLayout.Name : string.Empty, listItemFontNormal ) );
+                            listItemTable.AddCell( new Phrase( reservationLocation.LocationLayout != null ? reservationLocation.LocationLayout.Description : string.Empty, listItemFontNormal ) );
 
-                            List locationList = new List( List.UNORDERED, 8f );
-                            locationList.SetListSymbol( "\u2022" );
+                            iTextSharp.text.Image layoutPhoto = null;
 
-                            var locationListItem = new iTextSharp.text.ListItem( reservationLocation.Location.Name, listItemFontNormal );
-                            locationList.Add( locationListItem );
+                            try
+                            {
+                                if ( reservationLocation.LocationLayout.LayoutPhotoId != null )
+                                {
+                                    var appRootUri = new Uri( GlobalAttributesCache.Get().GetValue( "PublicApplicationRoot" ) );
+                                    var photoUrl = appRootUri + reservationLocation.LocationLayout.LayoutPhotoUrl;
 
-                            PdfPCell locationCell = new PdfPCell();
-                            locationCell.Border = 0;
-                            locationCell.PaddingTop = -2;
-                            locationCell.PaddingBottom = 2;
-                            locationCell.AddElement( locationList );
-                            locationCell.BorderWidth = 0;
+                                    layoutPhoto = iTextSharp.text.Image.GetInstance( photoUrl );
+                                    layoutPhoto.ScaleToFit( 100, 100 );
+                                }
+                            }
+                            catch
+                            {
+                            }
+
+                            PdfPCell photoCell = new PdfPCell();
+                            photoCell.Border = 0;
+                            photoCell.PaddingTop = 2;
+                            photoCell.PaddingBottom = 2;
+                            photoCell.BorderWidth = 0;
+                            if ( layoutPhoto != null )
+                            {
+                                photoCell.AddElement( layoutPhoto );
+                            }
+
                             if ( string.IsNullOrWhiteSpace( reservationSummary.Note ) ||
                                 reservationLocation != reservationSummary.Locations.First() )
                             {
-                                locationCell.BorderWidthBottom = 1;
-                                locationCell.BorderColorBottom = Color.DARK_GRAY;
+                                photoCell.BorderWidthBottom = 1;
+                                photoCell.BorderColorBottom = Color.DARK_GRAY;
                             }
-                            listItemTable.AddCell( locationCell );
+                            listItemTable.AddCell( photoCell );
 
                             PdfPCell contactCell = new PdfPCell();
                             contactCell.Border = 0;
@@ -327,7 +350,7 @@ public class TwoColumnHeaderFooter : PdfPageEventHelper
             cb = writer.DirectContent;
             template = cb.CreateTemplate( 50, 50 );
         }
-        catch 
+        catch
         {
             // not implemented
         }
