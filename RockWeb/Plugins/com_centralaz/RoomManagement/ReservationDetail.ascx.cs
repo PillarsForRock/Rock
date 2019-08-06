@@ -1243,12 +1243,29 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 slpLocation.SetValue( reservationLocation.LocationId );
                 LoadLocationImage();
                 BindLocationLayoutGrid();
+                if ( reservationLocation.LocationLayoutId.HasValue )
+                {
+                    foreach ( GridViewRow row in gLocationLayouts.Rows )
+                    {
+                        HiddenField hfLayoutId = row.FindControl( "hfLayoutId" ) as HiddenField;
+                        if ( hfLayoutId != null && hfLayoutId.ValueAsInt() == reservationLocation.LocationLayoutId )
+                        {
+                            RadioButton rbSelected = row.FindControl( "rbSelected" ) as RadioButton;
+                            if ( rbSelected != null )
+                            {
+                                rbSelected.Checked = true;
+                            }
+                        }
+                    }
+                }
             }
             else
             {
                 lImage.Text = string.Empty;
                 slpLocation.SetValue( null );
+                gLocationLayouts.Visible = false;
             }
+
 
             hfAddReservationLocationGuid.Value = reservationLocationGuid.ToString();
             hfActiveDialog.Value = "dlgReservationLocation";
@@ -1368,6 +1385,27 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                         e.Row.Cells[3].Controls[0].Visible = false;
                         e.Row.Cells[4].Controls[0].Visible = false;
                     }
+                }
+            }
+        }
+
+        protected void gViewLocations_RowDataBound( object sender, GridViewRowEventArgs e )
+        {
+            var reservationLocation = e.Row.DataItem as ReservationLocationSummary;
+            if ( reservationLocation != null )
+            {
+                var lLayoutPhoto = e.Row.FindControl( "lLayoutPhoto" ) as Literal;
+                if ( reservationLocation.LocationLayout != null && reservationLocation.LocationLayout.LayoutPhotoId.HasValue )
+                {
+                    string imgTag = string.Format( "<img src='{0}GetImage.ashx?id={1}&maxwidth=150&maxheight=150'/>", VirtualPathUtility.ToAbsolute( "~/" ), reservationLocation.LocationLayout.LayoutPhotoId.Value );
+
+                    string imgUrl = string.Format( "~/GetImage.ashx?id={0}", reservationLocation.LocationLayout.LayoutPhotoId );
+                    if ( System.Web.HttpContext.Current != null )
+                    {
+                        imgUrl = VirtualPathUtility.ToAbsolute( imgUrl );
+                    }
+
+                    lLayoutPhoto.Text = string.Format( "<a href='{0}' target='_blank'>{1}</a>", imgUrl, imgTag );
                 }
             }
         }
@@ -1696,7 +1734,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 }
 
                 fuSetupPhoto.BinaryFileId = reservation.SetupPhotoId;
-                
+
                 rtbName.Text = reservation.Name;
                 rtbNote.Text = reservation.Note;
                 nbAttending.Text = reservation.NumberAttending.ToString();
@@ -1821,7 +1859,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             nbSetupTime.Required = nbCleanupTime.Required = reservationType.IsSetupTimeRequired;
             nbAttending.Required = reservationType.IsNumberAttendingRequired;
             bool requireContactDetails = reservationType.IsContactDetailsRequired;
-            
+
             ppAdministrativeContact.Required = requireContactDetails;
             pnAdministrativeContactPhone.Required = requireContactDetails;
             tbAdministrativeContactEmail.Required = requireContactDetails;
@@ -1829,7 +1867,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             ppEventContact.Required = requireContactDetails;
             pnEventContactPhone.Required = requireContactDetails;
             tbEventContactEmail.Required = requireContactDetails;
-            
+
             var defaultTime = ReservationType.DefaultSetupTime.ToString();
             if ( defaultTime == "-1" )
             {
@@ -2452,6 +2490,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 if ( location != null )
                 {
                     var locationLayoutService = new LocationLayoutService( rockContext );
+                    gLocationLayouts.Visible = true;
                     gLocationLayouts.DataSource = locationLayoutService.Queryable().Where( ll => ll.LocationId == location.Id && ll.IsActive == true ).ToList();
                     gLocationLayouts.DataBind();
                 }
@@ -2809,5 +2848,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             public bool IsNew { get; set; }
         }
         #endregion
+
+
     }
 }

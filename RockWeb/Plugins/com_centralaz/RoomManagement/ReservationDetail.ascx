@@ -80,13 +80,15 @@
 
                             <div class="grid">
                                 <label class="control-label">Locations</label>
-                                <Rock:Grid ID="gViewLocations" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location">
+                                <Rock:Grid ID="gViewLocations" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location" OnRowDataBound="gViewLocations_RowDataBound">
                                     <Columns>
                                         <Rock:RockBoundField DataField="Location" HeaderText="Location" />
                                         <Rock:RockBoundField DataField="LocationLayout.Name" HeaderText="Layout" />
                                         <Rock:RockBoundField DataField="LocationLayout.Description" HeaderText="Description" />
                                         <Rock:RockTemplateField HeaderText="Photo">
-                                            <ItemTemplate><a href='/GetImage.ashx?id=<%# Eval( "LocationLayout.LayoutPhotoId") %>' target='_blank'><img src='/GetImage.ashx?id=<%# Eval( "LocationLayout.LayoutPhotoId") %>&maxwidth=150&maxheight=150'/></a></ItemTemplate>
+                                            <ItemTemplate>
+                                                <asp:Literal ID="lLayoutPhoto" runat="server" />
+                                            </ItemTemplate>
                                         </Rock:RockTemplateField>
                                         <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
                                     </Columns>
@@ -288,31 +290,26 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <Rock:NotificationBox ID="nbLocationConflicts" Visible="false" NotificationBoxType="Danger" runat="server" />
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="grid">
-                                <Rock:Grid ID="gLocationLayouts" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location Layout" OnRowDataBound="gLocationLayouts_RowDataBound">
-                                    <Columns>
-                                        <Rock:RockTemplateField>
-                                            <ItemTemplate>
-                                                <asp:HiddenField ID="hfLayoutId" runat="server" />
-                                                <asp:RadioButton ID="rbSelected" runat="server" OnCheckedChanged="rbSelected_CheckedChanged" AutoPostBack="true" />
-                                            </ItemTemplate>
-                                        </Rock:RockTemplateField>
-                                        <Rock:RockBoundField DataField="Name" HeaderText="Layout" />
-                                        <Rock:RockBoundField DataField="Description" HeaderText="Description" />
-                                        <Rock:RockTemplateField HeaderText="Photo">
-                                            <ItemTemplate>
-                                                <asp:Literal ID="lPhoto" runat="server" />
-                                            </ItemTemplate>
-                                        </Rock:RockTemplateField>
-                                    </Columns>
-                                </Rock:Grid>
-                            </div>
+                        <Rock:NotificationBox ID="nbLocationConflicts" Visible="false" NotificationBoxType="Danger" runat="server" />
+
+                        <div class="grid">
+                            <Rock:Grid ID="gLocationLayouts" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Location Layout" OnRowDataBound="gLocationLayouts_RowDataBound">
+                                <Columns>
+                                    <Rock:RockTemplateField>
+                                        <ItemTemplate>
+                                            <asp:HiddenField ID="hfLayoutId" runat="server" />
+                                            <asp:RadioButton ID="rbSelected" runat="server" OnCheckedChanged="rbSelected_CheckedChanged" AutoPostBack="true" />
+                                        </ItemTemplate>
+                                    </Rock:RockTemplateField>
+                                    <Rock:RockBoundField DataField="Name" HeaderText="Layout" />
+                                    <Rock:RockBoundField DataField="Description" HeaderText="Description" />
+                                    <Rock:RockTemplateField HeaderText="Photo">
+                                        <ItemTemplate>
+                                            <asp:Literal ID="lPhoto" runat="server" />
+                                        </ItemTemplate>
+                                    </Rock:RockTemplateField>
+                                </Columns>
+                            </Rock:Grid>
                         </div>
                     </div>
 
