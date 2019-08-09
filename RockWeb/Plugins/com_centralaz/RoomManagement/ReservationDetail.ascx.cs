@@ -420,8 +420,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
                 if ( sbSchedule.iCalendarContent != null )
                 {
-                    reservation.Schedule = new Schedule();
-                    reservation.Schedule.iCalendarContent = sbSchedule.iCalendarContent;
+                    reservation.Schedule = ReservationService.BuildScheduleFromICalContent( sbSchedule.iCalendarContent );
                     History.EvaluateChange( changes, "Schedule", oldReservation.GetFriendlyReservationScheduleText(), reservation.GetFriendlyReservationScheduleText() );
                 }
 
@@ -906,7 +905,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             var resource = new ResourceService( rockContext ).Get( srpResource.SelectedValueAsId() ?? 0 );
             if ( resource != null )
             {
-                var newReservation = new Reservation() { Id = PageParameter( "ReservationId" ).AsIntegerOrNull() ?? 0, Schedule = new Schedule() { iCalendarContent = sbSchedule.iCalendarContent }, SetupTime = nbSetupTime.Text.AsInteger(), CleanupTime = nbCleanupTime.Text.AsInteger() };
+                var newReservation = new Reservation() { Id = PageParameter( "ReservationId" ).AsIntegerOrNull() ?? 0, Schedule = ReservationService.BuildScheduleFromICalContent( sbSchedule.iCalendarContent ), SetupTime = nbSetupTime.Text.AsInteger(), CleanupTime = nbCleanupTime.Text.AsInteger() };
                 var availableQuantity = new ReservationService( rockContext ).GetAvailableResourceQuantity( resource, newReservation );
                 nbQuantity.MaximumValue = availableQuantity.ToString();
                 nbQuantity.Label = String.Format( "Quantity ({0} of {1} Available)", availableQuantity, resource.Quantity );
@@ -1137,6 +1136,30 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             LoadLocationImage();
             LoadLocationConflictMessage();
             BindLocationLayoutGrid();
+            SelectDefaultLayout();
+        }
+
+        private void SelectDefaultLayout()
+        {
+            if ( slpLocation.SelectedValueAsId().HasValue )
+            {
+                var defaultLayout = new LocationLayoutService( new RockContext() ).Queryable().AsNoTracking().Where( ll => ll.LocationId == slpLocation.SelectedValueAsId().Value && ll.IsActive == true && ll.IsDefault == true ).FirstOrDefault();
+                if ( defaultLayout != null )
+                {
+                    foreach ( GridViewRow row in gLocationLayouts.Rows )
+                    {
+                        HiddenField hfLayoutId = row.FindControl( "hfLayoutId" ) as HiddenField;
+                        if ( hfLayoutId != null && hfLayoutId.ValueAsInt() == defaultLayout.Id )
+                        {
+                            RadioButton rbSelected = row.FindControl( "rbSelected" ) as RadioButton;
+                            if ( rbSelected != null )
+                            {
+                                rbSelected.Checked = true;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -2298,7 +2321,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 else
                 {
                     int reservationId = hfReservationId.ValueAsInt();
-                    var newReservation = new Reservation() { Id = reservationId, Schedule = new Schedule() { iCalendarContent = sbSchedule.iCalendarContent }, SetupTime = nbSetupTime.Text.AsInteger(), CleanupTime = nbCleanupTime.Text.AsInteger() };
+                    var newReservation = new Reservation() { Id = reservationId, Schedule = ReservationService.BuildScheduleFromICalContent( sbSchedule.iCalendarContent ), SetupTime = nbSetupTime.Text.AsInteger(), CleanupTime = nbCleanupTime.Text.AsInteger() };
                     var message = new ReservationService( rockContext ).BuildLocationConflictHtmlList( newReservation, locationId, this.CurrentPageReference.Route );
 
                     if ( message != null )
@@ -2317,6 +2340,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 nbLocationConflicts.Visible = false;
             }
         }
+
 
         /// <summary>
         /// Loads the resource conflict message when using the resource editor modal.
@@ -2340,7 +2364,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 else
                 {
                     int reservationId = hfReservationId.ValueAsInt();
-                    var newReservation = new Reservation() { Id = reservationId, Schedule = new Schedule() { iCalendarContent = sbSchedule.iCalendarContent }, SetupTime = nbSetupTime.Text.AsInteger(), CleanupTime = nbCleanupTime.Text.AsInteger() };
+                    var newReservation = new Reservation() { Id = reservationId, Schedule = ReservationService.BuildScheduleFromICalContent( sbSchedule.iCalendarContent ), SetupTime = nbSetupTime.Text.AsInteger(), CleanupTime = nbCleanupTime.Text.AsInteger() };
 
                     var conflicts = new ReservationService( rockContext ).GetConflictsForResourceId( resource.Id, newReservation );
                     if ( conflicts.Any() )

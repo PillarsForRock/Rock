@@ -54,7 +54,7 @@ namespace com.centralaz.RoomManagement.Model
             {
                 filterEndDateTime = filterEndDateTime.AddDays( 1 ).AddMilliseconds( -1 );
             }
-
+            var test = qry.ToList();
             var reservations = qry.Where( r => r.Schedule.iCalendarContent.Contains( "RRULE" ) || r.Schedule.iCalendarContent.Contains( "RDATE" ) ||
                         (
                             r.Schedule.EffectiveStartDate >= qryStartDateTime &&
@@ -414,6 +414,20 @@ namespace com.centralaz.RoomManagement.Model
             return canApprove;
         }
 
+        public static Schedule BuildScheduleFromICalContent( string filterICalContent )
+        {
+            var filterSchedule = new Schedule();
+            filterSchedule.iCalendarContent = filterICalContent;
+            var calEvent = ScheduleICalHelper.GetCalenderEvent( filterICalContent );
+            if ( calEvent != null )
+            {
+                filterSchedule.EffectiveStartDate = calEvent.DTStart != null ? calEvent.DTStart.Value.Date : ( DateTime? ) null;
+                filterSchedule.EffectiveEndDate = calEvent.DTEnd != null ? calEvent.DTEnd.Value.Date : ( DateTime? ) null;
+            }
+
+            return filterSchedule;
+        }
+
         /// <summary>
         /// Sends the notifications.
         /// </summary>
@@ -492,7 +506,7 @@ namespace com.centralaz.RoomManagement.Model
             {
                 existingReservationQry = existingReservationQry.Where( r => r.ReservationLocations.Any( rl => relevantLocationIds.Contains( rl.LocationId ) ) );
             }
-                
+
             // Check existing Reservations for conflicts
             IEnumerable<ReservationSummary> conflictingReservationSummaries = GetConflictingReservationSummaries( newReservation, existingReservationQry );
 

@@ -139,7 +139,7 @@ namespace Rock.Rest.Controllers
                 // if id is zero and we have a rootCategory, show the children of that rootCategory (but don't show the rootCategory)
                 int parentItemId = id == 0 ? rootCategoryId : id;
 
-                var newReservation = new Reservation() { Id = reservationId ?? 0, Schedule = new Schedule() { iCalendarContent = iCalendarContent }, SetupTime = setupTime, CleanupTime = cleanupTime };
+                var newReservation = new Reservation() { Id = reservationId ?? 0, Schedule = ReservationService.BuildScheduleFromICalContent( iCalendarContent ), SetupTime = setupTime, CleanupTime = cleanupTime };
 
                 var resourceQry = resourceService.Queryable().AsNoTracking();
 

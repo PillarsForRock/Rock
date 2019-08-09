@@ -87,7 +87,7 @@ namespace Rock.Rest.Controllers
 
             var person = GetPerson();
 
-            var newReservation = new Reservation() { Id = reservationId ?? 0, Schedule = new Schedule() { iCalendarContent = iCalendarContent }, SetupTime = setupTime, CleanupTime = cleanupTime };
+            var newReservation = new Reservation() { Id = reservationId ?? 0, Schedule = ReservationService.BuildScheduleFromICalContent( iCalendarContent ), SetupTime = setupTime, CleanupTime = cleanupTime };
 
             var reservationService = new ReservationService( rockContext );
             List<int> reservedLocationIds = reservationService.GetReservedLocationIds( newReservation, false );
