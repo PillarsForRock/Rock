@@ -232,8 +232,8 @@
                                             <Rock:RockBoundField DataField="Location" HeaderText="Location" />
                                             <Rock:RockBoundField DataField="LocationLayout.Name" HeaderText="Layout" />
                                             <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
-                                            <Rock:LinkButtonField CssClass="btn btn-success btn-sm" OnClick="gLocations_ApproveClick" Text="Approve" Visible="true" />
-                                            <Rock:LinkButtonField CssClass="btn btn-danger btn-sm" OnClick="gLocations_DenyClick" Text="Deny" Visible="true" />
+                                            <Rock:LinkButtonField CssClass="btn btn-success btn-sm" OnClick="gLocations_ApproveClick" Text="<i class='fa fa-check'></i>" Visible="true" />
+                                            <Rock:LinkButtonField CssClass="btn btn-danger btn-sm" OnClick="gLocations_DenyClick" Text="<i class='fa fa-ban'></i>" Visible="true" />
                                             <Rock:EditField OnClick="gLocations_Edit" />
                                             <Rock:DeleteField OnClick="gLocations_Delete" />
                                         </Columns>
@@ -252,8 +252,8 @@
                                             </Rock:RockTemplateField>
                                             <Rock:RockBoundField DataField="Quantity" HeaderText="Qty" />
                                             <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
-                                            <Rock:LinkButtonField CssClass="btn btn-sm btn-success " OnClick="gResources_ApproveClick" Text="Approve" Visible="true" />
-                                            <Rock:LinkButtonField CssClass="btn btn-sm btn-danger" OnClick="gResources_DenyClick" Text="Deny" Visible="true" />
+                                            <Rock:LinkButtonField CssClass="btn btn-sm btn-success " OnClick="gResources_ApproveClick" Text="<i class='fa fa-check'></i>" Visible="true" />
+                                            <Rock:LinkButtonField CssClass="btn btn-sm btn-danger" OnClick="gResources_DenyClick" Text="<i class='fa fa-ban'></i>" Visible="true" />
                                             <Rock:EditField OnClick="gResources_Edit" />
                                             <Rock:DeleteField OnClick="gResources_Delete" />
                                         </Columns>
