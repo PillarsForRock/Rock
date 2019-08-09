@@ -57,16 +57,16 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
     [BooleanField( "Show Date Range Filter", "Determines whether the date range filters are shown", false, order: 7, category: "Filter Settings" )]
 
     [LinkedPage( "Details Page", "Detail page for events", order: 8, category: "Lava Settings" )]
-    [CodeEditorField( "Lava Template", "Lava template to use to display the list of reservations.", CodeEditorMode.Lava, CodeEditorTheme.Rock, 400, true, @"{% include '~/Plugins/com_centralaz/RoomManagement/Assets/Lava/Reservation.lava' %}", "Lava Settings", 9 )]
-    [BooleanField( "Enable Debug", "Display a list of merge fields available for lava.", false, "Lava Settings", 10 )]
+    [DefinedValueField( "13B169EA-A090-45FF-8B11-A9E02776E35E", "Visible Printable Report Options", "The Printable Reports that the user is able to select", true, true, "", "Lava Settings", 9 )]
+    [DefinedValueField( "32EC3B34-01CF-4513-BC2E-58ECFA91D010", "Visible Reservation View Options", "The Reservation Views that the user is able to select", true, true, "", "Lava Settings", 10 )]
+    [BooleanField( "Enable Debug", "Display a list of merge fields available for lava.", false, "Lava Settings", 11 )]
 
-    [CustomDropdownListField( "Default View Option", "Determines the default view option", "Day,Week,Month", true, "Week", order: 15, category: "View Settings" )]
-    [DayOfWeekField( "Start of Week Day", "Determines what day is the start of a week.", true, DayOfWeek.Sunday, order: 16, category: "View Settings" )]
-    [BooleanField( "Show Small Calendar", "Determines whether the calendar widget is shown", true, order: 17, category: "View Settings" )]
-    [BooleanField( "Show Day View", "Determines whether the day view option is shown", false, order: 18, category: "View Settings" )]
-    [BooleanField( "Show Week View", "Determines whether the week view option is shown", true, order: 19, category: "View Settings" )]
-    [BooleanField( "Show Month View", "Determines whether the month view option is shown", true, order: 20, category: "View Settings" )]
-    [DefinedValueField( "13B169EA-A090-45FF-8B11-A9E02776E35E", "Visible Report Options", "The Reservation Reports that the user is able to select", true, true, "", "View Settings", 21 )]
+    [CustomDropdownListField( "Default View Option", "Determines the default view option", "Day,Week,Month", true, "Week", order: 12, category: "View Settings" )]
+    [DayOfWeekField( "Start of Week Day", "Determines what day is the start of a week.", true, DayOfWeek.Sunday, order: 13, category: "View Settings" )]
+    [BooleanField( "Show Small Calendar", "Determines whether the calendar widget is shown", true, order: 14, category: "View Settings" )]
+    [BooleanField( "Show Day View", "Determines whether the day view option is shown", false, order: 15, category: "View Settings" )]
+    [BooleanField( "Show Week View", "Determines whether the week view option is shown", true, order: 16, category: "View Settings" )]
+    [BooleanField( "Show Month View", "Determines whether the month view option is shown", true, order: 17, category: "View Settings" )]
 
     public partial class ReservationLava : Rock.Web.UI.RockBlock
     {
@@ -165,15 +165,37 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
             nbMessage.Visible = false;
 
-            var definedTypeCache = DefinedTypeCache.Get( "13B169EA-A090-45FF-8B11-A9E02776E35E" );
-            var selectedReports = GetAttributeValue( "VisibleReportOptions" ).SplitDelimitedValues().AsGuidList();
-            rptReports.DataSource = definedTypeCache.DefinedValues.Where( dv => selectedReports.Contains( dv.Guid ) ).ToList();
+            var reportCache = DefinedTypeCache.Get( "13B169EA-A090-45FF-8B11-A9E02776E35E" );
+            var selectedReports = GetAttributeValue( "VisiblePrintableReportOptions" ).SplitDelimitedValues().AsGuidList();
+            rptReports.DataSource = reportCache.DefinedValues.Where( dv => selectedReports.Contains( dv.Guid ) ).ToList();
             rptReports.DataBind();
+
+            var viewCache = DefinedTypeCache.Get( "32EC3B34-01CF-4513-BC2E-58ECFA91D010" );
+            var selectedViews = GetAttributeValue( "VisibleReservationViewOptions" ).SplitDelimitedValues().AsGuidList();
+            var definedValueList = viewCache.DefinedValues.Where( dv => selectedViews.Contains( dv.Guid ) ).ToList();
+            var defaultValue = definedValueList.FirstOrDefault();
+            rptViews.DataSource = definedValueList;
+            rptViews.DataBind();
 
             if ( !Page.IsPostBack )
             {
                 if ( SetFilterControls() )
                 {
+                    if ( defaultValue != null && hfSelectedView.ValueAsInt() == 0 )
+                    {
+                        hfSelectedView.Value = defaultValue.Id.ToString();
+                    }
+
+                    if ( definedValueList.Count > 1 )
+                    {
+                        var selectedValue = DefinedValueCache.Get( hfSelectedView.ValueAsInt() );
+                        lSelectedView.Text = string.Format( "View As: {0}", selectedValue.Value );
+                        divViewDropDown.Visible = true;
+                    }
+                    else
+                    {
+                        divViewDropDown.Visible = false;
+                    }
 
                     pnlDetails.Visible = true;
                     BindData();
@@ -359,6 +381,17 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 PrintReport( definedValueId.Value );
             }
         }
+        protected void rptViews_ItemCommand( object source, RepeaterCommandEventArgs e )
+        {
+            var definedValueId = e.CommandArgument.ToString().AsIntegerOrNull();
+            if ( definedValueId.HasValue )
+            {
+                var selectedValue = DefinedValueCache.Get( definedValueId.Value );
+                lSelectedView.Text = string.Format( "View As: {0}", selectedValue.Value );
+                hfSelectedView.Value = definedValueId.ToString();
+                BindData();
+            }
+        }
 
         #endregion
 
@@ -404,7 +437,13 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             mergeFields.Add( "ReservationSummaries", reservationSummaries );
             mergeFields.Add( "CurrentPerson", CurrentPerson );
 
-            lOutput.Text = GetAttributeValue( "LavaTemplate" ).ResolveMergeFields( mergeFields );
+            var definedValue = new DefinedValueService( new RockContext() ).Get( hfSelectedView.ValueAsInt() );
+            definedValue.LoadAttributes();
+
+            var lavaTemplate = definedValue.GetAttributeValue( "Lava" );
+            var lavaCommands = definedValue.GetAttributeValue( "LavaCommands" );
+
+            lOutput.Text = lavaTemplate.ResolveMergeFields( mergeFields, lavaCommands );
 
             // show debug info
             if ( GetAttributeValue( "EnableDebug" ).AsBoolean() && IsUserAuthorized( Authorization.EDIT ) )

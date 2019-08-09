@@ -189,19 +189,39 @@
                     <Rock:BootstrapButton ID="btnMonth" runat="server" CssClass="btn btn-default" Text="Month" OnClick="btnViewMode_Click" />
                 </div>
 
+
                 <div class="pull-right">
-                    <%-- <Rock:ButtonDropDownList ID="ddlReservationReports" runat="server" Title="Print" CssClass="btn btn-primary " OnSelectionChanged="ddlReservationReports_SelectionChanged" />--%>
                     <ul class="nav nav-actions action action-extended">
                         <li class="dropdown">
-
-                            <a class="dropdown-toggle navbar-link btn btn-primary" href="#" data-toggle="dropdown">Print
-                            <b class="fa fa-caret-down"></b>
+                            <a class="dropdown-toggle navbar-link btn btn-xs btn-primary" href="#" data-toggle="dropdown">Print
+                                        <b class="fa fa-caret-down"></b>
                             </a>
                             <ul id="ulReportDropDown" runat="server" enableviewstate="false" class="dropdown-menu dropdown-menu-right">
                                 <asp:Repeater runat="server" ID="rptReports" OnItemCommand="rptReports_ItemCommand">
                                     <ItemTemplate>
                                         <li>
                                             <asp:LinkButton ID="btnReport" runat="server" Text='<%# Eval("Value") %>' CommandArgument='<%# Eval("Id") %>' />
+                                        </li>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="divViewDropDown" runat="server" class="pull-right" style="padding-right: 10px;">
+                    <asp:HiddenField ID="hfSelectedView" runat="server" />
+                    <ul class="nav nav-actions action action-extended">
+                        <li class="dropdown">
+                            <a class="dropdown-toggle navbar-link btn btn-xs btn-default" href="#" data-toggle="dropdown">
+                                <asp:Literal ID="lSelectedView" runat="server" />
+                                <b class="fa fa-caret-down"></b>
+                            </a>
+                            <ul id="ulViewDropDown" runat="server" enableviewstate="false" class="dropdown-menu dropdown-menu-right">
+                                <asp:Repeater runat="server" ID="rptViews" OnItemCommand="rptViews_ItemCommand">
+                                    <ItemTemplate>
+                                        <li>
+                                            <asp:LinkButton ID="btnView" runat="server" Text='<%# Eval("Value") %>' CommandArgument='<%# Eval("Id") %>' />
                                         </li>
                                     </ItemTemplate>
                                 </asp:Repeater>
