@@ -373,6 +373,23 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
         }
 
+        protected void btnAllReservations_Click( object sender, EventArgs e )
+        {
+            hfShowBy.Value = ( (int)ShowBy.All ).ToString();
+            BindData( ShowBy.All );
+        }
+
+        protected void btnMyReservations_Click( object sender, EventArgs e )
+        {
+            hfShowBy.Value = ( (int) ShowBy.MyReservations ).ToString();
+            BindData( ShowBy.MyReservations );
+        }
+
+        protected void btnMyApprovals_Click( object sender, EventArgs e )
+        {
+            hfShowBy.Value = ( (int)ShowBy.MyApprovals ).ToString();
+            BindData( ShowBy.MyApprovals );
+        }
         protected void rptReports_ItemCommand( object source, RepeaterCommandEventArgs e )
         {
             var definedValueId = e.CommandArgument.ToString().AsIntegerOrNull();
@@ -396,10 +413,17 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         #endregion
 
         #region Methods
-
         private void BindData()
         {
-            List<ReservationService.ReservationSummary> reservationSummaryList = GetReservationSummaries();
+            var showBy = (ShowBy)hfShowBy.ValueAsInt();
+            BindData( showBy );
+        }
+
+        private void BindData( ShowBy showBy )
+        {
+            HighlightActionButtons( showBy );
+
+            List<ReservationService.ReservationSummary> reservationSummaryList = GetReservationSummaries( showBy );
 
             // Bind to Grid
             var reservationSummaries = reservationSummaryList.Select( r => new
@@ -491,12 +515,76 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             return;
         }
 
+        private void HighlightActionButtons( ShowBy showBy )
+        {
+            switch ( showBy )
+            {
+                case ShowBy.All:
+                    btnAllReservations.AddCssClass( "active btn-primary" );
+                    btnMyReservations.RemoveCssClass( "active btn-primary" );
+                    btnMyApprovals.RemoveCssClass( "active btn-primary" );
+                    break;
+                case ShowBy.MyReservations:
+                    btnAllReservations.RemoveCssClass( "active btn-primary" );
+                    btnMyReservations.AddCssClass( "active btn-primary" );
+                    btnMyApprovals.RemoveCssClass( "active btn-primary" );
+                    break;
+                case ShowBy.MyApprovals:
+                    btnAllReservations.RemoveCssClass( "active btn-primary" );
+                    btnMyReservations.RemoveCssClass( "active btn-primary" );
+                    btnMyApprovals.AddCssClass( "active btn-primary" );
+                    break;
+                default:
+                    btnAllReservations.AddCssClass( "active btn-primary" );
+                    btnMyReservations.RemoveCssClass( "active btn-primary" );
+                    btnMyApprovals.RemoveCssClass( "active btn-primary" );
+                    break;
+            }
+        }
         private List<ReservationService.ReservationSummary> GetReservationSummaries()
+        {
+            return GetReservationSummaries( ShowBy.All );
+        }
+
+        private List<ReservationService.ReservationSummary> GetReservationSummaries( ShowBy showBy )
         {
             var rockContext = new RockContext();
             var reservationService = new ReservationService( rockContext );
             var qry = reservationService.Queryable();
 
+            // Do additional filtering based on the ShowBy selection (My Reservations, My Approvals)
+            switch ( showBy )
+            {
+                case ShowBy.MyReservations:
+                    qry = qry.Where( r => r.CreatedByPersonAliasId == CurrentPersonAliasId || r.AdministrativeContactPersonAliasId == CurrentPersonAliasId || r.EventContactPersonAliasId == CurrentPersonAliasId );
+                    break;
+                case ShowBy.MyApprovals:
+                    if ( CurrentPersonId.HasValue )
+                    {
+                        var myLocationsToApproveIds = new List<int>();
+                        var myResourcesToApproveIds = new List<int>();
+
+                        // NICK TODO: GetLocationsByApprovalGroupMembership is not returning the locations correctly, I'll probably will need to re-write it
+                        var myLocationsToApprove = reservationService.GetLocationsByApprovalGroupMembership( CurrentPersonId.Value );
+                        if ( myLocationsToApprove != null )
+                        {
+                            myLocationsToApproveIds = myLocationsToApprove.Select( l => l.Id ).ToList();
+                        }
+
+                        var myResourcesToApprove = reservationService.GetResourcesByApprovalGroupMembership( CurrentPersonId.Value );
+                        if ( myResourcesToApprove != null )
+                        {
+                            myResourcesToApproveIds = myResourcesToApprove.Select( r => r.Id ).ToList();
+                        }
+
+                        qry = qry.Where( r => r.ReservationLocations.Any( rl => ( myLocationsToApproveIds.Contains( rl.LocationId ) ) ) ||
+                                            r.ReservationResources.Any( rr => ( myResourcesToApproveIds.Contains( rr.ResourceId ) ) )
+                                        );
+                    }
+                    break;
+                default:
+                    break;
+            }
             // Filter by Resources
             var resourceIdList = rpResource.SelectedValuesAsInt().ToList();
             if ( resourceIdList.Where( r => r != 0 ).Any() )
@@ -570,8 +658,9 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
             if ( !GetAttributeValue( string.Format( "Show{0}View", ViewMode ) ).AsBoolean() )
             {
-                ShowError( "Configuration Error", string.Format( "The Default View Option setting has been set to '{0}', but the Show {0} View setting has not been enabled.", ViewMode ) );
-                return false;
+                ViewMode = GetAttributeValue( "DefaultViewOption" );
+                //ShowError( "Configuration Error", string.Format( "The Default View Option setting has been set to '{0}', but the Show {0} View setting has not been enabled.", ViewMode ) );
+                //return false;
             }
 
             // Show/Hide calendar control
@@ -716,6 +805,12 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 FilterStartDate = new DateTime( selectedDate.Year, selectedDate.Month, 1 );
                 FilterEndDate = FilterStartDate.Value.AddMonths( 1 ).AddDays( -1 );
             }
+            else if ( ViewMode == "Year" )
+            {
+                FilterStartDate = new DateTime( RockDateTime.Today.Year, RockDateTime.Today.Month, 1 );
+                FilterEndDate = FilterStartDate.Value.AddMonths( 12 );
+                //pnlCalendar.AddCssClass( "disabled" );
+            }
 
             // Reset the selection
             calReservationCalendar.SelectedDates.SelectRange( FilterStartDate.Value, FilterEndDate.Value );
@@ -781,6 +876,30 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
         #endregion
 
+        #region Helper Classes, etc.
+
+        /// <summary>
+        ///
+        /// </summary>
+        private enum ShowBy
+        {
+            /// <summary>
+            /// All reservations
+            /// </summary>
+            All = 0,
+
+            /// <summary>
+            /// Only my reservations
+            /// </summary>
+            MyReservations = 1,
+
+            /// <summary>
+            /// Only resevations that need my approval
+            /// </summary>
+            MyApprovals = 2
+
+        }
+        #endregion
 
     }
 }

@@ -48,6 +48,13 @@ namespace com.centralaz.RoomManagement.Model
         /// <returns></returns>
         public List<ReservationSummary> GetReservationSummaries( IQueryable<Reservation> qry, DateTime filterStartDateTime, DateTime filterEndDateTime, bool roundToDay = false )
         {
+            var reservationSummaryList = new List<ReservationSummary>();
+
+            if ( qry == null )
+            {
+                return reservationSummaryList;
+            }
+
             var qryStartDateTime = filterStartDateTime.AddMonths( -1 );
             var qryEndDateTime = filterEndDateTime.AddMonths( 1 );
             if ( roundToDay )
@@ -71,7 +78,6 @@ namespace com.centralaz.RoomManagement.Model
                 .Where( r => r.ReservationDateTimes.Any() )
                 .ToList();
 
-            var reservationSummaryList = new List<ReservationSummary>();
             foreach ( var reservationWithDates in reservationsWithDates )
             {
                 var reservation = reservationWithDates.Reservation;
@@ -662,6 +668,56 @@ namespace com.centralaz.RoomManagement.Model
                  .Distinct()
                  .ToList();
             return locationConflicts;
+        }
+
+        #endregion
+
+        #region Location & Resource Approval Helper Methods
+
+        /// <summary>
+        /// Gets the locations where the given person is in the location's approval group.
+        /// </summary>
+        /// <param name="personId">The person identifier.</param>
+        /// <returns></returns>
+        public IEnumerable<Location> GetLocationsByApprovalGroupMembership( int personId )
+        {
+            // select location where location.approvalgroup in (select group where group.groupmember contains person ) 
+            var rockContext = new RockContext();
+            var results = rockContext.Database.SqlQuery<Location>(
+                $@"
+                SELECT l.* FROM [Location] l
+                INNER JOIN [AttributeValue] av ON av.[EntityId] = l.[Id]
+                INNER JOIN [Attribute] a ON a.[Id] = av.[AttributeId] AND a.[Key] = 'ApprovalGroup' 
+                WHERE av.[Value] IN
+                (
+                    SELECT CONVERT(nvarchar(40), g.[Guid]) FROM [Group] g
+                    INNER JOIN [GroupMember] gm ON gm.[GroupId] = g.[Id]
+                    WHERE
+                    gm.[PersonId] = {personId}
+                )
+                " ).ToList<Location>();
+
+            return results;
+        }
+
+        /// <summary>
+        /// Gets the resources where the given person is in the resources's approval group.
+        /// </summary>
+        /// <param name="personId">The person identifier.</param>
+        /// <returns></returns>
+        public IEnumerable<Resource> GetResourcesByApprovalGroupMembership( int personId )
+        {
+            //// select location where location.approvalgroup in (select group where group.groupmember contains person ) 
+            var rockContext = new RockContext();
+            var results = rockContext.Database.SqlQuery<Resource>(
+                $@"
+                SELECT r.* FROM [_com_centralaz_RoomManagement_Resource] r
+                INNER JOIN [Group] g ON g.[Id] = r.[ApprovalGroupId]
+                INNER JOIN [GroupMember] gm ON gm.[GroupId] = g.[Id]
+                WHERE gm.[PersonId] = {personId}
+                " ).ToList<Resource>();
+
+            return results;
         }
 
         #endregion
