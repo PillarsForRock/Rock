@@ -60,8 +60,15 @@
                                 <div class="col-md-6">
                                     <Rock:RockLiteral ID="lMinistry" runat="server" Label="Ministry" />
                                 </div>
+                            </div>                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <Rock:RockLiteral ID="lNumberAttending" runat="server" Label="Number Attending" />
+                                </div>
+                                <div class="col-md-6">
+                                    <Rock:RockLiteral ID="lSetupPhoto" runat="server" Label="Setup Photo" />
+                                </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-md-6">
                                     <Rock:RockLiteral ID="lEventContact" runat="server" Label="Event Contact" />
@@ -70,6 +77,7 @@
                                     <Rock:RockLiteral ID="lAdminContact" runat="server" Label="Administrative Contact" />
                                 </div>
                             </div>
+                            <Rock:RockLiteral ID="lNotes" runat="server" Label="Notes" />
                             <div class="row">
                                 <div class="col-md-6">
                                     <Rock:RockLiteral ID="lApproval" runat="server" Label="Approval State" />
@@ -107,16 +115,6 @@
                                         <Rock:RockBoundField DataField="ApprovalState" HeaderText="Approved?" />
                                     </Columns>
                                 </Rock:Grid>
-                            </div>
-
-                            <Rock:RockLiteral ID="lNotes" runat="server" Label="Notes" />
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <Rock:RockLiteral ID="lNumberAttending" runat="server" Label="Number Attending" />
-                                </div>
-                                <div class="col-md-3">
-                                    <Rock:RockLiteral ID="lSetupPhoto" runat="server" Label="Setup Photo" />
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -177,6 +175,15 @@
 
                             <Rock:RockDropDownList ID="ddlCampus" runat="server" Label="Campus" Required="false" OnSelectedIndexChanged="ddlCampus_SelectedIndexChanged" AutoPostBack="true" />
                             <Rock:RockDropDownList ID="ddlMinistry" runat="server" Label="Ministry" Required="false" />
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <Rock:NumberBox ID="nbAttending" runat="server" NumberType="Integer" MinimumValue="0" Label="Number Attending" Required="false" />
+                                </div>
+                                <div class="col-md-6">
+                                    <Rock:FileUploader ID="fuSetupPhoto" runat="server" Label="Setup Photo" Help="If you'd like a special setup for your event, please upload a photo or diagram here." />
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <Rock:PersonPicker ID="ppEventContact" runat="server" Label="Event Contact" EnableSelfSelection="true" OnSelectPerson="ppEventContact_SelectPerson" Help="The person who will be on-site to manage this reservation." />
@@ -189,6 +196,8 @@
                                     <Rock:EmailBox ID="tbAdministrativeContactEmail" runat="server" Label="Administrative Contact Email" />
                                 </div>
                             </div>
+                            <Rock:DataTextBox ID="rtbNote" runat="server" Label="Notes" TextMode="MultiLine" Rows="4" MaxLength="2500" SourceTypeName="com.centralaz.RoomManagement.Model.Reservation, com.centralaz.RoomManagement" PropertyName="Note" />
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group" id="divStatus" runat="server">
@@ -251,17 +260,6 @@
                                     </Rock:Grid>
                                 </div>
                             </Rock:PanelWidget>
-
-                            <Rock:DataTextBox ID="rtbNote" runat="server" Label="Notes" TextMode="MultiLine" Rows="4" MaxLength="2500" SourceTypeName="com.centralaz.RoomManagement.Model.Reservation, com.centralaz.RoomManagement" PropertyName="Note" />
-
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <Rock:NumberBox ID="nbAttending" runat="server" NumberType="Integer" MinimumValue="0" Label="Number Attending" Required="false" />
-                                </div>
-                                <div class="col-md-3">
-                                    <Rock:FileUploader ID="fuSetupPhoto" runat="server" Label="Setup Photo" Help="If you'd like a special setup for your event, please upload a photo or diagram here." />
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <asp:PlaceHolder ID="phLocationAnswers" runat="server" />
