@@ -3,6 +3,7 @@
 
 <asp:UpdatePanel ID="upnlContent" runat="server">
     <ContentTemplate>
+        <asp:HiddenField ID="hfShowBy" runat="server" />
 
         <Rock:NotificationBox ID="nbMessage" runat="server" Visible="false" />
 
@@ -187,6 +188,7 @@
                     <Rock:BootstrapButton ID="btnDay" runat="server" CssClass="btn btn-default" Text="Day" OnClick="btnViewMode_Click" />
                     <Rock:BootstrapButton ID="btnWeek" runat="server" CssClass="btn btn-default" Text="Week" OnClick="btnViewMode_Click" />
                     <Rock:BootstrapButton ID="btnMonth" runat="server" CssClass="btn btn-default" Text="Month" OnClick="btnViewMode_Click" />
+                    <Rock:BootstrapButton ID="btnYear" runat="server" CssClass="btn btn-default" Text="Year" OnClick="btnViewMode_Click" />
                 </div>
 
 
@@ -207,6 +209,12 @@
                             </ul>
                         </li>
                     </ul>
+                </div>
+
+                <div class="pull-right margin-r-xl">
+                    <asp:LinkButton ID="btnAllReservations" runat="server" CssClass="btn btn-xs btn-default" Text="All Reservations" data-val="0" OnClick="btnAllReservations_Click"/>
+                    <asp:LinkButton ID="btnMyReservations" runat="server" CssClass="btn btn-xs btn-default" Text="My Reservations" data-val="1" OnClick="btnMyReservations_Click"/>
+                    <asp:LinkButton ID="btnMyApprovals" runat="server" CssClass="btn btn-xs btn-default" Text="My Approvals" data-val="2" OnClick="btnMyApprovals_Click" />
                 </div>
 
                 <div id="divViewDropDown" runat="server" class="pull-right" style="padding-right: 10px;">

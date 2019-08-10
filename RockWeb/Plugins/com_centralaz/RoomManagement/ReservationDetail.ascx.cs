@@ -1922,6 +1922,11 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             var resourceService = new ResourceService( rockContext );
             var reservationService = new ReservationService( rockContext );
 
+            if ( LocationsState == null || ResourcesState == null )
+            {
+                return;
+            }
+
             foreach ( var reservationLocation in LocationsState )
             {
                 reservationLocation.Reservation = reservationService.Get( reservationLocation.ReservationId );
@@ -2801,11 +2806,11 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 try
                 {
                     reservationResource.Resource = new ResourceService( new RockContext() ).Get( srpResource.SelectedValueAsId().Value );
+                    reservationResource.ResourceId = srpResource.SelectedValueAsId().Value;
                 }
                 catch { }
 
                 reservationResource.ApprovalState = ReservationResourceApprovalState.Unapproved;
-                reservationResource.ResourceId = srpResource.SelectedValueAsId().Value;
                 reservationResource.Quantity = nbQuantity.Text.AsInteger();
                 reservationResource.ReservationId = 0;
 
