@@ -522,13 +522,13 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
 
             // Filter by Ministry
-            List<int> ministryIds = cblMinistry.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.AsInteger() ).ToList();
-            if ( ministryIds.Any() )
+            List<String> ministryNames = cblMinistry.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Text ).ToList();
+            if ( ministryNames.Any() )
             {
                 qry = qry
                     .Where( r =>
                         !r.ReservationMinistryId.HasValue ||    // All
-                        ministryIds.Contains( r.ReservationMinistryId.Value ) );
+                        ministryNames.Contains( r.ReservationMinistry.Name ) );
             }
 
             // Filter by Approval
@@ -641,7 +641,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
             // Setup Ministry Filter
             rcwMinistry.Visible = GetAttributeValue( "MinistryFilterDisplayMode" ).AsInteger() > 1;
-            cblMinistry.DataSource = ReservationMinistryCache.All();
+            cblMinistry.DataSource = ReservationMinistryCache.All().DistinctBy( rmc => rmc.Name );
             cblMinistry.DataBind();
 
             if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( "Ministries" ) ) )
