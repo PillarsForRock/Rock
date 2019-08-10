@@ -493,7 +493,8 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             var reportFont = definedValue.GetAttributeValue( "ReportFont" );
             var reportLava = definedValue.GetAttributeValue( "Lava" );
 
-            List<ReservationService.ReservationSummary> reservationSummaryList = GetReservationSummaries();
+            var showBy = ( ShowBy ) hfShowBy.ValueAsInt();
+            List<ReservationService.ReservationSummary> reservationSummaryList = GetReservationSummaries( showBy );
 
             if ( !logoFileUrl.ToLower().StartsWith( "http" ) )
             {
