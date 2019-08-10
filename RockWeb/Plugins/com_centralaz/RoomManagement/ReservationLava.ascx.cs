@@ -67,6 +67,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
     [BooleanField( "Show Day View", "Determines whether the day view option is shown", false, order: 15, category: "View Settings" )]
     [BooleanField( "Show Week View", "Determines whether the week view option is shown", true, order: 16, category: "View Settings" )]
     [BooleanField( "Show Month View", "Determines whether the month view option is shown", true, order: 17, category: "View Settings" )]
+    [BooleanField( "Show Year View", "Determines whether the year view option is shown", false, order: 18, category: "View Settings" )]
 
     public partial class ReservationLava : Rock.Web.UI.RockBlock
     {
@@ -226,10 +227,58 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
         protected override void OnPreRender( EventArgs e )
         {
-            btnDay.CssClass = "btn btn-default" + ( ViewMode == "Day" ? " active" : "" );
-            btnWeek.CssClass = "btn btn-default" + ( ViewMode == "Week" ? " active" : "" );
-            btnMonth.CssClass = "btn btn-default" + ( ViewMode == "Month" ? " active" : "" );
+            btnDay.RemoveCssClass( "active" );
+            btnWeek.RemoveCssClass( "active" );
+            btnMonth.RemoveCssClass( "active" );
+            btnYear.RemoveCssClass( "active" );
+            pnlCalendar.RemoveCssClass( "hidden" );
+            ypYearPicker.Visible = false;
 
+            switch ( ViewMode )
+            {
+                case "Day":
+                    btnDay.AddCssClass( "active" );
+                    break;
+
+                case "Week":
+                    btnWeek.AddCssClass( "active" );
+                    break;
+
+                case "Month":
+                    btnMonth.AddCssClass( "active" );
+                    break;
+
+                case "Year":
+                    btnYear.AddCssClass( "active" );
+                    pnlCalendar.AddCssClass( "hidden" );
+                    ypYearPicker.Visible = true;
+
+                    if ( ypYearPicker.SelectedYear.HasValue )
+                    {
+                        dpEndDate.SelectedDate = new DateTime( ypYearPicker.SelectedYear.Value, 12, 31 );
+                        // Start at the current date if they have the current year selected.
+                        if ( ypYearPicker.SelectedYear.Value == RockDateTime.Today.Year )
+                        {
+                            FilterStartDate = RockDateTime.Today;
+                        }
+                        else
+                        {
+                            FilterStartDate = new DateTime( ypYearPicker.SelectedYear.Value, 1, 1 );
+                        }
+                        FilterEndDate = dpEndDate.SelectedDate;
+                        BindData();
+                    }
+                    else
+                    {
+                        ypYearPicker.SelectedYear = RockDateTime.Now.Year;
+                    }
+
+                    break;
+
+                default:
+                    break;
+            }
+            
             base.OnPreRender( e );
         }
 
@@ -689,6 +738,11 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 FilterStartDate = new DateTime( today.Year, today.Month, 1 );
                 FilterEndDate = FilterStartDate.Value.AddMonths( 1 ).AddDays( -1 );
             }
+            else if ( ViewMode == "Year" )
+            {
+                FilterStartDate = new DateTime( RockDateTime.Today.Year, RockDateTime.Today.Month, 1 );
+                FilterEndDate = FilterStartDate.Value.AddMonths( 12 );
+            }
 
             // Setup small calendar Filter
             calReservationCalendar.FirstDayOfWeek = _firstDayOfWeek.ConvertToInt().ToString().ConvertToEnum<FirstDayOfWeek>();
@@ -769,13 +823,15 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             var viewsVisible = new List<bool> {
                 GetAttributeValue( "ShowDayView" ).AsBoolean(),
                 GetAttributeValue( "ShowWeekView" ).AsBoolean(),
-                GetAttributeValue( "ShowMonthView" ).AsBoolean()
+                GetAttributeValue( "ShowMonthView" ).AsBoolean(),
+                GetAttributeValue( "ShowYearView" ).AsBoolean()
             };
 
             var howManyVisible = viewsVisible.Where( v => v ).Count();
             btnDay.Visible = howManyVisible > 1 && viewsVisible[0];
             btnWeek.Visible = howManyVisible > 1 && viewsVisible[1];
             btnMonth.Visible = howManyVisible > 1 && viewsVisible[2];
+            btnYear.Visible = howManyVisible > 1 && viewsVisible[3];
 
             // Set filter visibility
             bool showFilter = ( pnlCalendar.Visible || lipLocation.Visible || rpResource.Visible || rcwCampus.Visible || rcwMinistry.Visible || rcwApproval.Visible || dpStartDate.Visible || dpEndDate.Visible );
@@ -810,7 +866,6 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             {
                 FilterStartDate = new DateTime( RockDateTime.Today.Year, RockDateTime.Today.Month, 1 );
                 FilterEndDate = FilterStartDate.Value.AddMonths( 12 );
-                //pnlCalendar.AddCssClass( "disabled" );
             }
 
             // Reset the selection

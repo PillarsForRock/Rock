@@ -10,6 +10,7 @@
         <asp:Panel ID="pnlDetails" runat="server" CssClass="row">
 
             <asp:Panel ID="pnlFilters" CssClass="col-md-3 hidden-print" runat="server">
+                <Rock:YearPicker ID="ypYearPicker" runat="server" CssClass="margin-b-md" Visible="false" AutoPostBack="true" />
 
                 <asp:Panel ID="pnlCalendar" CssClass="calendar" runat="server">
                     <asp:Calendar ID="calReservationCalendar" runat="server" DayNameFormat="FirstLetter" SelectionMode="Day" BorderStyle="None"
@@ -185,19 +186,17 @@
             <asp:Panel ID="pnlList" CssClass="col-md-9" runat="server">
 
                 <div class="btn-group hidden-print" role="group">
-                    <Rock:BootstrapButton ID="btnDay" runat="server" CssClass="btn btn-default" Text="Day" OnClick="btnViewMode_Click" />
-                    <Rock:BootstrapButton ID="btnWeek" runat="server" CssClass="btn btn-default" Text="Week" OnClick="btnViewMode_Click" />
-                    <Rock:BootstrapButton ID="btnMonth" runat="server" CssClass="btn btn-default" Text="Month" OnClick="btnViewMode_Click" />
-                    <Rock:BootstrapButton ID="btnYear" runat="server" CssClass="btn btn-default" Text="Year" OnClick="btnViewMode_Click" />
+                    <Rock:BootstrapButton ID="btnDay" runat="server" CssClass="btn btn-xs btn-default" Text="Day" OnClick="btnViewMode_Click" />
+                    <Rock:BootstrapButton ID="btnWeek" runat="server" CssClass="btn btn-xs btn-default" Text="Week" OnClick="btnViewMode_Click" />
+                    <Rock:BootstrapButton ID="btnMonth" runat="server" CssClass="btn btn-xs btn-default" Text="Month" OnClick="btnViewMode_Click" />
+                    <Rock:BootstrapButton ID="btnYear" runat="server" CssClass="btn btn-xs btn-default" Text="Year" OnClick="btnViewMode_Click" />
                 </div>
 
 
                 <div class="pull-right">
-                    <ul class="nav nav-actions action action-extended">
-                        <li class="dropdown">
-                            <a class="dropdown-toggle navbar-link btn btn-xs btn-primary" href="#" data-toggle="dropdown">Print
-                                        <b class="fa fa-caret-down"></b>
-                            </a>
+                    <div class="btn-group">
+                          <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">Print <span class="caret"></span></button>
+
                             <ul id="ulReportDropDown" runat="server" enableviewstate="false" class="dropdown-menu dropdown-menu-right">
                                 <asp:Repeater runat="server" ID="rptReports" OnItemCommand="rptReports_ItemCommand">
                                     <ItemTemplate>
@@ -207,12 +206,11 @@
                                     </ItemTemplate>
                                 </asp:Repeater>
                             </ul>
-                        </li>
-                    </ul>
+                    </div>
                 </div>
 
-                <div class="pull-right margin-r-xl">
-                    <asp:LinkButton ID="btnAllReservations" runat="server" CssClass="btn btn-xs btn-default" Text="All Reservations" data-val="0" OnClick="btnAllReservations_Click"/>
+                <div class="pull-right margin-r-md">
+                    <asp:LinkButton ID="btnAllReservations" runat="server" CssClass="btn btn-xs btn-default" Text="&nbsp; All &nbsp;" data-val="0" OnClick="btnAllReservations_Click"/>
                     <asp:LinkButton ID="btnMyReservations" runat="server" CssClass="btn btn-xs btn-default" Text="My Reservations" data-val="1" OnClick="btnMyReservations_Click"/>
                     <asp:LinkButton ID="btnMyApprovals" runat="server" CssClass="btn btn-xs btn-default" Text="My Approvals" data-val="2" OnClick="btnMyApprovals_Click" />
                 </div>
