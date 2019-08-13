@@ -163,10 +163,12 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         protected void rGrid_GridReorder( object sender, GridReorderEventArgs e )
         {
             var rockContext = new RockContext();
-            var questions = GetQuestions();
-            if ( questions != null )
+            var attributes = GetAttributeList();
+            if ( attributes != null )
             {
-                new QuestionService( rockContext ).Reorder( questions, e.OldIndex, e.NewIndex );
+                var attributeService = new AttributeService( rockContext );
+                var databaseAttributes = attributeService.GetByIds( attributes.Select( a => a.Id ).ToList() ).OrderBy( a => a.Order ).ToList();
+                attributeService.Reorder( databaseAttributes, e.OldIndex, e.NewIndex );
                 rockContext.SaveChanges();
             }
 
@@ -573,7 +575,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             {
                 entityTypeId = new EntityTypeService( rockContext ).Get( com.centralaz.RoomManagement.SystemGuid.EntityType.RESERVATION_LOCATION.AsGuid() ).Id;
             }
-            
+
             var savedAttribute = SaveAttributeEdits( edtQuestion, entityTypeId, null, null, ResourceId, LocationId, rockContext );
             AttributeCache.RemoveEntityAttributes();
             return savedAttribute;
