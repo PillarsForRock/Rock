@@ -184,57 +184,59 @@
             </asp:Panel>
 
             <asp:Panel ID="pnlList" CssClass="col-md-9" runat="server">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="btn-group hidden-print pull-left" role="group">
+                            <Rock:BootstrapButton ID="btnDay" runat="server" CssClass="btn btn-xs btn-default" Text="Day" OnClick="btnViewMode_Click" />
+                            <Rock:BootstrapButton ID="btnWeek" runat="server" CssClass="btn btn-xs btn-default" Text="Week" OnClick="btnViewMode_Click" />
+                            <Rock:BootstrapButton ID="btnMonth" runat="server" CssClass="btn btn-xs btn-default" Text="Month" OnClick="btnViewMode_Click" />
+                            <Rock:BootstrapButton ID="btnYear" runat="server" CssClass="btn btn-xs btn-default" Text="Year" OnClick="btnViewMode_Click" />
+                        </div>
 
-                <div class="btn-group hidden-print" role="group">
-                    <Rock:BootstrapButton ID="btnDay" runat="server" CssClass="btn btn-xs btn-default" Text="Day" OnClick="btnViewMode_Click" />
-                    <Rock:BootstrapButton ID="btnWeek" runat="server" CssClass="btn btn-xs btn-default" Text="Week" OnClick="btnViewMode_Click" />
-                    <Rock:BootstrapButton ID="btnMonth" runat="server" CssClass="btn btn-xs btn-default" Text="Month" OnClick="btnViewMode_Click" />
-                    <Rock:BootstrapButton ID="btnYear" runat="server" CssClass="btn btn-xs btn-default" Text="Year" OnClick="btnViewMode_Click" />
-                </div>
+                        <div id="divViewDropDown" runat="server" class="pull-left margin-l-sm">
+                            <div class="btn-group">
+                                <asp:HiddenField ID="hfSelectedView" runat="server" />
+                                <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <asp:Literal ID="lSelectedView" runat="server" />
+                                    <span class="caret"></span>
+                                </button>
 
+                                <ul id="ulViewDropDown" runat="server" enableviewstate="false" class="dropdown-menu dropdown-menu-right">
+                                    <asp:Repeater runat="server" ID="rptViews" OnItemCommand="rptViews_ItemCommand">
+                                        <ItemTemplate>
+                                            <li>
+                                                <asp:LinkButton ID="btnView" runat="server" Text='<%# Eval("Value") %>' CommandArgument='<%# Eval("Id") %>' />
+                                            </li>
+                                        </ItemTemplate>
+                                    </asp:Repeater>
+                                </ul>
+                            </div>
+                        </div>
 
-                <div class="pull-right">
-                    <div class="btn-group">
-                          <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">Print <span class="caret"></span></button>
+                        <div class="pull-right">
+                            <div class="btn-group">
+                                <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">Print <i class="fa fa-print"></i> <span class="caret"></span></button>
 
-                            <ul id="ulReportDropDown" runat="server" enableviewstate="false" class="dropdown-menu dropdown-menu-right">
-                                <asp:Repeater runat="server" ID="rptReports" OnItemCommand="rptReports_ItemCommand">
-                                    <ItemTemplate>
-                                        <li>
-                                            <asp:LinkButton ID="btnReport" runat="server" Text='<%# Eval("Value") %>' CommandArgument='<%# Eval("Id") %>' />
-                                        </li>
-                                    </ItemTemplate>
-                                </asp:Repeater>
-                            </ul>
+                                <ul id="ulReportDropDown" runat="server" enableviewstate="false" class="dropdown-menu dropdown-menu-right">
+                                    <asp:Repeater runat="server" ID="rptReports" OnItemCommand="rptReports_ItemCommand">
+                                        <ItemTemplate>
+                                            <li>
+                                                <asp:LinkButton ID="btnReport" runat="server" Text='<%# Eval("Value") %>' CommandArgument='<%# Eval("Id") %>' />
+                                            </li>
+                                        </ItemTemplate>
+                                    </asp:Repeater>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="pull-right margin-r-md">
+                            <asp:LinkButton ID="btnAllReservations" runat="server" CssClass="btn btn-xs btn-default" Text="&nbsp; All &nbsp;" data-val="0" OnClick="btnAllReservations_Click" />
+                            <asp:LinkButton ID="btnMyReservations" runat="server" CssClass="btn btn-xs btn-default" Text="My Reservations" data-val="1" OnClick="btnMyReservations_Click" />
+                            <asp:LinkButton ID="btnMyApprovals" runat="server" CssClass="btn btn-xs btn-default" Text="My Approvals" data-val="2" OnClick="btnMyApprovals_Click" />
+                        </div>
                     </div>
                 </div>
 
-                <div class="pull-right margin-r-md">
-                    <asp:LinkButton ID="btnAllReservations" runat="server" CssClass="btn btn-xs btn-default" Text="&nbsp; All &nbsp;" data-val="0" OnClick="btnAllReservations_Click"/>
-                    <asp:LinkButton ID="btnMyReservations" runat="server" CssClass="btn btn-xs btn-default" Text="My Reservations" data-val="1" OnClick="btnMyReservations_Click"/>
-                    <asp:LinkButton ID="btnMyApprovals" runat="server" CssClass="btn btn-xs btn-default" Text="My Approvals" data-val="2" OnClick="btnMyApprovals_Click" />
-                </div>
-
-                <div id="divViewDropDown" runat="server" class="pull-right" style="padding-right: 10px;">
-                    <asp:HiddenField ID="hfSelectedView" runat="server" />
-                    <ul class="nav nav-actions action action-extended">
-                        <li class="dropdown">
-                            <a class="dropdown-toggle navbar-link btn btn-xs btn-default" href="#" data-toggle="dropdown">
-                                <asp:Literal ID="lSelectedView" runat="server" />
-                                <b class="fa fa-caret-down"></b>
-                            </a>
-                            <ul id="ulViewDropDown" runat="server" enableviewstate="false" class="dropdown-menu dropdown-menu-right">
-                                <asp:Repeater runat="server" ID="rptViews" OnItemCommand="rptViews_ItemCommand">
-                                    <ItemTemplate>
-                                        <li>
-                                            <asp:LinkButton ID="btnView" runat="server" Text='<%# Eval("Value") %>' CommandArgument='<%# Eval("Id") %>' />
-                                        </li>
-                                    </ItemTemplate>
-                                </asp:Repeater>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
 
                 <asp:Literal ID="lOutput" runat="server"></asp:Literal>
                 <asp:Literal ID="lDebug" Visible="false" runat="server"></asp:Literal>
