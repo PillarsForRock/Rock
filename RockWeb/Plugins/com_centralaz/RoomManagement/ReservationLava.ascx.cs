@@ -93,6 +93,8 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         #region Properties
 
         private String ViewMode { get; set; }
+
+        private int? ReservationViewId { get; set; }
         private DateTime? FilterStartDate { get; set; }
         private DateTime? FilterEndDate { get; set; }
         private List<DateTime> ReservationDates { get; set; }
@@ -118,6 +120,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             base.LoadViewState( savedState );
 
             ViewMode = ViewState["ViewMode"] as String;
+            ReservationViewId = ViewState["ReservationViewId"] as int?;
             FilterStartDate = ViewState["FilterStartDate"] as DateTime?;
             FilterEndDate = ViewState["FilterEndDate"] as DateTime?;
             ReservationDates = ViewState["ReservationDates"] as List<DateTime>;
@@ -182,17 +185,23 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             var viewCache = DefinedTypeCache.Get( "32EC3B34-01CF-4513-BC2E-58ECFA91D010" );
             var selectedViews = GetAttributeValue( "VisibleReservationViewOptions" ).SplitDelimitedValues().AsGuidList();
             var definedValueList = viewCache.DefinedValues.Where( dv => selectedViews.Contains( dv.Guid ) ).ToList();
-            var defaultValue = definedValueList.FirstOrDefault();
             rptViews.DataSource = definedValueList;
             rptViews.DataBind();
+
+            // Set User Preference
+            ReservationViewId = this.GetUserPreference( PreferenceKey + "ReservationViewId" ).AsIntegerOrNull();
+            if ( ReservationViewId == null && definedValueList.FirstOrDefault() != null )
+            {
+                ReservationViewId = definedValueList.FirstOrDefault().Id;
+            }
 
             if ( !Page.IsPostBack )
             {
                 if ( SetFilterControls() )
                 {
-                    if ( defaultValue != null && hfSelectedView.ValueAsInt() == 0 )
+                    if ( ReservationViewId != null && hfSelectedView.ValueAsInt() == 0 )
                     {
-                        hfSelectedView.Value = defaultValue.Id.ToString();
+                        hfSelectedView.Value = ReservationViewId.ToString();
                     }
 
                     if ( definedValueList.Count > 1 )
@@ -226,6 +235,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         protected override object SaveViewState()
         {
             ViewState["ViewMode"] = ViewMode;
+            ViewState["ReservationViewId"] = ReservationViewId;
             ViewState["FilterStartDate"] = FilterStartDate;
             ViewState["FilterEndDate"] = FilterEndDate;
             ViewState["ReservationDates"] = ReservationDates;
@@ -461,6 +471,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             if ( definedValueId.HasValue )
             {
                 var selectedValue = DefinedValueCache.Get( definedValueId.Value );
+                this.SetUserPreference( PreferenceKey + "ReservationViewId", selectedValue.Id.ToString() );
                 lSelectedView.Text = string.Format( "View As: {0}", selectedValue.Value );
                 hfSelectedView.Value = definedValueId.ToString();
                 BindData();
