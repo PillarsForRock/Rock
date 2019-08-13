@@ -230,6 +230,9 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
     }});
 ", pnlEditApprovalState.ClientID, hfApprovalState.ClientID );
             ScriptManager.RegisterStartupScript( pnlEditApprovalState, pnlEditApprovalState.GetType(), "status-script-" + this.BlockId.ToString(), script, true );
+
+            btnDelete.Attributes["onclick"] = string.Format( "javascript: return Rock.dialogs.confirmDelete(event, '{0}');", Reservation.FriendlyTypeName );
+
         }
 
         /// <summary>
