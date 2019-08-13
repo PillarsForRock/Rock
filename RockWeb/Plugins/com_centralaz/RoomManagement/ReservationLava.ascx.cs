@@ -97,6 +97,14 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         private DateTime? FilterEndDate { get; set; }
         private List<DateTime> ReservationDates { get; set; }
 
+        private String PreferenceKey
+        {
+            get
+            {
+                return string.Format( "reservation-lava-{0}-", this.BlockId );
+            }
+        }
+
         #endregion
 
         #region Base ControlMethods
@@ -278,7 +286,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 default:
                     break;
             }
-            
+
             base.OnPreRender( e );
         }
 
@@ -344,13 +352,13 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
         protected void lipLocation_SelectItem( object sender, EventArgs e )
         {
-            this.SetUserPreference( "Locations", lipLocation.SelectedValues.AsIntegerList().AsDelimited( "," ) );
+            this.SetUserPreference( PreferenceKey + "Locations", lipLocation.SelectedValues.AsIntegerList().AsDelimited( "," ) );
             BindData();
         }
 
         protected void rpResource_SelectItem( object sender, EventArgs e )
         {
-            this.SetUserPreference( "Resources", rpResource.SelectedValues.AsIntegerList().AsDelimited( "," ) );
+            this.SetUserPreference( PreferenceKey + "Resources", rpResource.SelectedValues.AsIntegerList().AsDelimited( "," ) );
             BindData();
         }
 
@@ -361,7 +369,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void cblCampus_SelectedIndexChanged( object sender, EventArgs e )
         {
-            this.SetUserPreference( "Campuses", cblCampus.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.AsInteger() ).ToList().AsDelimited( "," ) );
+            this.SetUserPreference( PreferenceKey + "Campuses", cblCampus.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.AsInteger() ).ToList().AsDelimited( "," ) );
             BindData();
         }
 
@@ -372,7 +380,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void cblMinistry_SelectedIndexChanged( object sender, EventArgs e )
         {
-            this.SetUserPreference( "Ministries", cblMinistry.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.AsInteger() ).ToList().AsDelimited( "," ) );
+            this.SetUserPreference( PreferenceKey + "Ministries", cblMinistry.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.AsInteger() ).ToList().AsDelimited( "," ) );
             BindData();
         }
 
@@ -383,7 +391,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void cblApproval_SelectedIndexChanged( object sender, EventArgs e )
         {
-            this.SetUserPreference( "Approval State", cblApproval.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.ConvertToEnum<ReservationApprovalState>().ConvertToInt() ).ToList().AsDelimited( "," ) );
+            this.SetUserPreference( PreferenceKey + "Approval State", cblApproval.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.ConvertToEnum<ReservationApprovalState>().ConvertToInt() ).ToList().AsDelimited( "," ) );
             BindData();
         }
 
@@ -394,7 +402,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void cblReservationType_SelectedIndexChanged( object sender, EventArgs e )
         {
-            this.SetUserPreference( "Reservation Type", cblReservationType.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.AsInteger() ).ToList().AsDelimited( "," ) );
+            this.SetUserPreference( PreferenceKey + "Reservation Type", cblReservationType.Items.OfType<System.Web.UI.WebControls.ListItem>().Where( l => l.Selected ).Select( a => a.Value.AsInteger() ).ToList().AsDelimited( "," ) );
             BindData();
         }
 
@@ -415,7 +423,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             var btnViewMode = sender as BootstrapButton;
             if ( btnViewMode != null )
             {
-                this.SetUserPreference( "ViewMode", btnViewMode.Text );
+                this.SetUserPreference( PreferenceKey + "ViewMode", btnViewMode.Text );
                 ViewMode = btnViewMode.Text;
                 ResetCalendarSelection();
                 BindData();
@@ -424,19 +432,19 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
         protected void btnAllReservations_Click( object sender, EventArgs e )
         {
-            hfShowBy.Value = ( (int)ShowBy.All ).ToString();
+            hfShowBy.Value = ( ( int ) ShowBy.All ).ToString();
             BindData( ShowBy.All );
         }
 
         protected void btnMyReservations_Click( object sender, EventArgs e )
         {
-            hfShowBy.Value = ( (int) ShowBy.MyReservations ).ToString();
+            hfShowBy.Value = ( ( int ) ShowBy.MyReservations ).ToString();
             BindData( ShowBy.MyReservations );
         }
 
         protected void btnMyApprovals_Click( object sender, EventArgs e )
         {
-            hfShowBy.Value = ( (int)ShowBy.MyApprovals ).ToString();
+            hfShowBy.Value = ( ( int ) ShowBy.MyApprovals ).ToString();
             BindData( ShowBy.MyApprovals );
         }
         protected void rptReports_ItemCommand( object source, RepeaterCommandEventArgs e )
@@ -464,7 +472,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         #region Methods
         private void BindData()
         {
-            var showBy = (ShowBy)hfShowBy.ValueAsInt();
+            var showBy = ( ShowBy ) hfShowBy.ValueAsInt();
             BindData( showBy );
         }
 
@@ -700,7 +708,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         private bool SetFilterControls()
         {
             // Get and verify the view mode
-            ViewMode = this.GetUserPreference( "ViewMode" );
+            ViewMode = this.GetUserPreference( PreferenceKey + "ViewMode" );
             if ( string.IsNullOrWhiteSpace( ViewMode ) )
             {
                 ViewMode = GetAttributeValue( "DefaultViewOption" );
@@ -751,25 +759,25 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
             // Setup Location Filter
             lipLocation.Visible = GetAttributeValue( "LocationFilterDisplayMode" ).AsInteger() > 1;
-            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( "Locations" ) ) )
+            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( PreferenceKey + "Locations" ) ) )
             {
-                lipLocation.SetValues( this.GetUserPreference( "Locations" ).Split( ',' ).AsIntegerList() );
+                lipLocation.SetValues( this.GetUserPreference( PreferenceKey + "Locations" ).Split( ',' ).AsIntegerList() );
             }
 
             // Setup Resource Filter
             rpResource.Visible = GetAttributeValue( "ResourceFilterDisplayMode" ).AsInteger() > 1;
-            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( "Resources" ) ) )
+            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( PreferenceKey + "Resources" ) ) )
             {
-                rpResource.SetValues( this.GetUserPreference( "Resources" ).Split( ',' ).AsIntegerList() );
+                rpResource.SetValues( this.GetUserPreference( PreferenceKey + "Resources" ).Split( ',' ).AsIntegerList() );
             }
 
             // Setup Campus Filter
             rcwCampus.Visible = GetAttributeValue( "CampusFilterDisplayMode" ).AsInteger() > 1;
             cblCampus.DataSource = CampusCache.All( false );
             cblCampus.DataBind();
-            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( "Campuses" ) ) )
+            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( PreferenceKey + "Campuses" ) ) )
             {
-                cblCampus.SetValues( this.GetUserPreference( "Campuses" ).SplitDelimitedValues() );
+                cblCampus.SetValues( this.GetUserPreference( PreferenceKey + "Campuses" ).SplitDelimitedValues() );
             }
             else
             {
@@ -788,18 +796,18 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             cblMinistry.DataSource = ReservationMinistryCache.All().DistinctBy( rmc => rmc.Name );
             cblMinistry.DataBind();
 
-            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( "Ministries" ) ) )
+            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( PreferenceKey + "Ministries" ) ) )
             {
-                cblMinistry.SetValues( this.GetUserPreference( "Ministries" ).SplitDelimitedValues() );
+                cblMinistry.SetValues( this.GetUserPreference( PreferenceKey + "Ministries" ).SplitDelimitedValues() );
             }
 
             // Setup Approval Filter
             rcwApproval.Visible = GetAttributeValue( "ApprovalFilterDisplayMode" ).AsInteger() > 1;
             cblApproval.BindToEnum<ReservationApprovalState>();
 
-            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( "Approval State" ) ) )
+            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( PreferenceKey + "Approval State" ) ) )
             {
-                cblApproval.SetValues( this.GetUserPreference( "Approval State" ).SplitDelimitedValues() );
+                cblApproval.SetValues( this.GetUserPreference( PreferenceKey + "Approval State" ).SplitDelimitedValues() );
             }
 
             // Setup Reservation Type Filter
@@ -807,9 +815,9 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             cblReservationType.DataSource = new ReservationTypeService( new RockContext() ).Queryable().ToList();
             cblReservationType.DataBind();
 
-            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( "Reservation Type" ) ) )
+            if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( PreferenceKey + "Reservation Type" ) ) )
             {
-                cblReservationType.SetValues( this.GetUserPreference( "Reservation Type" ).SplitDelimitedValues() );
+                cblReservationType.SetValues( this.GetUserPreference( PreferenceKey + "Reservation Type" ).SplitDelimitedValues() );
             }
 
             // Date Range Filter
