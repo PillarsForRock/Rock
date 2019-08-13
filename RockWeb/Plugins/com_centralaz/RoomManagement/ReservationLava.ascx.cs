@@ -57,8 +57,8 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
     [BooleanField( "Show Date Range Filter", "Determines whether the date range filters are shown", false, order: 7, category: "Filter Settings" )]
 
     [LinkedPage( "Details Page", "Detail page for events", order: 8, category: "Lava Settings" )]
-    [DefinedValueField( "13B169EA-A090-45FF-8B11-A9E02776E35E", "Visible Printable Report Options", "The Printable Reports that the user is able to select", true, true, "", "Lava Settings", 9 )]
-    [DefinedValueField( "32EC3B34-01CF-4513-BC2E-58ECFA91D010", "Visible Reservation View Options", "The Reservation Views that the user is able to select", true, true, "", "Lava Settings", 10 )]
+    [DefinedValueField( "13B169EA-A090-45FF-8B11-A9E02776E35E", "Visible Printable Report Options", "The Printable Reports that the user is able to select", true, true, "5D53E2F0-BA82-4154-B996-085C979FACB0,46C855B0-E50E-49E7-8B99-74561AFB3DD2", "Lava Settings", 9 )]
+    [DefinedValueField( "32EC3B34-01CF-4513-BC2E-58ECFA91D010", "Visible Reservation View Options", "The Reservation Views that the user is able to select", true, true, "67EA36B0-D861-4399-998E-3B69F7700DC0", "Lava Settings", 10 )]
     [BooleanField( "Enable Debug", "Display a list of merge fields available for lava.", false, "Lava Settings", 11 )]
 
     [CustomDropdownListField( "Default View Option", "Determines the default view option", "Day,Week,Month", true, "Week", order: 12, category: "View Settings" )]

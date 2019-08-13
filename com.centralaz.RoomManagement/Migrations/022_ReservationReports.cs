@@ -147,7 +147,7 @@ namespace com.centralaz.RoomManagement.Migrations
             RockMigrationHelper.AddDefinedValueAttributeValue( "67EA36B0-D861-4399-998E-3B69F7700DC0", "466DC361-B813-445A-8883-FED7E5D4229B", @"{% include '~/Plugins/com_centralaz/RoomManagement/Assets/Lava/Reservation.lava' %}" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "67EA36B0-D861-4399-998E-3B69F7700DC0", "EE70E271-EAE1-446B-AFA8-EE2D299B8D7F", lavaCommands );
 
-            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "59D5A94C-94A0-4630-B80A-BB25697D74C7", "Visible Printable Report Options", "VisiblePrintableReportOptions", "", "The Printable Reports that the user is able to select", 21, @"", "BB36C64E-E379-4B34-BC91-BD65FCEEBBF7" );
+            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "59D5A94C-94A0-4630-B80A-BB25697D74C7", "Visible Printable Report Options", "VisiblePrintableReportOptions", "", "The Printable Reports that the user is able to select", 21, @"5D53E2F0-BA82-4154-B996-085C979FACB0,46C855B0-E50E-49E7-8B99-74561AFB3DD2", "BB36C64E-E379-4B34-BC91-BD65FCEEBBF7" );
 
             StringBuilder sb = new StringBuilder();
             sb.Append( "46C855B0-E50E-49E7-8B99-74561AFB3DD2," );
@@ -155,7 +155,7 @@ namespace com.centralaz.RoomManagement.Migrations
             RockMigrationHelper.AddBlockAttributeValue( "F71B7715-EBF5-4CDF-867E-B1018B2AECD5", "BB36C64E-E379-4B34-BC91-BD65FCEEBBF7", sb.ToString() );
 
             // Attrib for BlockType: Reservation Lava:Visible Reservation View Options
-            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "59D5A94C-94A0-4630-B80A-BB25697D74C7", "Visible Reservation View Options", "VisibleReservationViewOptions", "", "The Reservation Views that the user is able to select", 22, @"", "9A9C55FA-4E79-4003-B95A-7F12686889EC" );
+            RockMigrationHelper.UpdateBlockTypeAttribute( "D0EC5F69-5BB1-4BCA-B0F0-3FE2B9267635", "59D5A94C-94A0-4630-B80A-BB25697D74C7", "Visible Reservation View Options", "VisibleReservationViewOptions", "", "The Reservation Views that the user is able to select", 22, @"67EA36B0-D861-4399-998E-3B69F7700DC0", "9A9C55FA-4E79-4003-B95A-7F12686889EC" );
             // Attrib Value for Block:Reservation Lava, Attribute:Visible Reservation View Options Page: Room Management, Site: Rock RMS
             RockMigrationHelper.AddBlockAttributeValue( "F71B7715-EBF5-4CDF-867E-B1018B2AECD5", "9A9C55FA-4E79-4003-B95A-7F12686889EC", visibleViewGuid );
 
