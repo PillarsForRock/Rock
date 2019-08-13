@@ -1797,7 +1797,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 ddlCampus.Items.Clear();
                 ddlCampus.Items.Add( new ListItem( string.Empty, string.Empty ) );
 
-                foreach ( var campus in CampusCache.All() )
+                foreach ( var campus in CampusCache.All( false ) )
                 {
                     ddlCampus.Items.Add( new ListItem( campus.Name, campus.Id.ToString().ToUpper() ) );
                 }
