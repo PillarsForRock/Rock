@@ -1144,21 +1144,24 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
         private void SelectDefaultLayout()
         {
-            if ( slpLocation.SelectedValueAsId().HasValue )
+            if ( !slpLocation.SelectedValueAsId().HasValue )
             {
-                var defaultLayout = new LocationLayoutService( new RockContext() ).Queryable().AsNoTracking().Where( ll => ll.LocationId == slpLocation.SelectedValueAsId().Value && ll.IsActive == true && ll.IsDefault == true ).FirstOrDefault();
-                if ( defaultLayout != null )
+                return;
+            }
+
+            var selectedLocationId = slpLocation.SelectedValueAsId().Value;
+            var defaultLayout = new LocationLayoutService( new RockContext() ).Queryable().AsNoTracking().Where( ll => ll.LocationId == selectedLocationId && ll.IsActive == true && ll.IsDefault == true ).FirstOrDefault();
+            if ( defaultLayout != null )
+            {
+                foreach ( GridViewRow row in gLocationLayouts.Rows )
                 {
-                    foreach ( GridViewRow row in gLocationLayouts.Rows )
+                    HiddenField hfLayoutId = row.FindControl( "hfLayoutId" ) as HiddenField;
+                    if ( hfLayoutId != null && hfLayoutId.ValueAsInt() == defaultLayout.Id )
                     {
-                        HiddenField hfLayoutId = row.FindControl( "hfLayoutId" ) as HiddenField;
-                        if ( hfLayoutId != null && hfLayoutId.ValueAsInt() == defaultLayout.Id )
+                        RadioButton rbSelected = row.FindControl( "rbSelected" ) as RadioButton;
+                        if ( rbSelected != null )
                         {
-                            RadioButton rbSelected = row.FindControl( "rbSelected" ) as RadioButton;
-                            if ( rbSelected != null )
-                            {
-                                rbSelected.Checked = true;
-                            }
+                            rbSelected.Checked = true;
                         }
                     }
                 }
