@@ -60,7 +60,7 @@
                                 <div class="col-md-6">
                                     <Rock:RockLiteral ID="lMinistry" runat="server" Label="Ministry" />
                                 </div>
-                            </div>                            
+                            </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <Rock:RockLiteral ID="lNumberAttending" runat="server" Label="Number Attending" />
@@ -118,8 +118,8 @@
                             </div>
                         </div>
                     </div>
-                    <asp:PlaceHolder ID="phViewLocationAnswers" runat="server" />
-                    <asp:PlaceHolder ID="phViewResourceAnswers" runat="server" />
+                    <asp:PlaceHolder ID="phViewLocationAnswers" runat="server" EnableViewState="false" />
+                    <asp:PlaceHolder ID="phViewResourceAnswers" runat="server" EnableViewState="false" />
                     <div class="row">
                         <div class="col-md-6">
                             <Rock:ModalAlert ID="mdWorkflowLaunched" runat="server" />
@@ -262,8 +262,8 @@
                             </Rock:PanelWidget>
                         </div>
                     </div>
-                    <asp:PlaceHolder ID="phLocationAnswers" runat="server" />
-                    <asp:PlaceHolder ID="phResourceAnswers" runat="server" />
+                    <asp:PlaceHolder ID="phLocationAnswers" runat="server" EnableViewState="false" />
+                    <asp:PlaceHolder ID="phResourceAnswers" runat="server" EnableViewState="false" />
                     <div class="actions">
                         <asp:LinkButton ID="btnSave" runat="server" Text="Save" CssClass="btn btn-primary" OnClick="btnSave_OnClick" />
                         <asp:LinkButton ID="btnCancel" runat="server" Text="Cancel" CssClass="btn btn-link" OnClick="btnCancel_OnClick" CausesValidation="false" />
