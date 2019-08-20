@@ -804,7 +804,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
             // Setup Ministry Filter
             rcwMinistry.Visible = GetAttributeValue( "MinistryFilterDisplayMode" ).AsInteger() > 1;
-            cblMinistry.DataSource = ReservationMinistryCache.All().DistinctBy( rmc => rmc.Name );
+            cblMinistry.DataSource = ReservationMinistryCache.All().DistinctBy( rmc => rmc.Name ).OrderBy( m => m.Name );
             cblMinistry.DataBind();
 
             if ( !string.IsNullOrWhiteSpace( this.GetUserPreference( PreferenceKey + "Ministries" ) ) )

@@ -261,7 +261,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
 
             // Setup Ministry Filter
-            cblMinistry.DataSource = ReservationMinistryCache.All().DistinctBy( rmc => rmc.Name );
+            cblMinistry.DataSource = ReservationMinistryCache.All().DistinctBy( rmc => rmc.Name ).OrderBy( m => m.Name );
             cblMinistry.DataBind();
 
             if ( !string.IsNullOrWhiteSpace( gfSettings.GetUserPreference( FilterSetting.MINISTRY ) ) )
