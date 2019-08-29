@@ -319,6 +319,7 @@
             <Content>
                 <asp:HiddenField ID="hfAddReservationResourceGuid" runat="server" />
                 <asp:ValidationSummary ID="valReservationResourceSummary" runat="server" HeaderText="Please Correct the Following" CssClass="alert alert-danger" ValidationGroup="ReservationResource" />
+                <Rock:NotificationBox ID="nbResourceNote" Visible="false" NotificationBoxType="Info" runat="server" />
                 <div class="row">
                     <div class="col-md-6">
                         <CentralAZ:ScheduledResourcePicker ID="srpResource" runat="server" Label="Resource" Required="false" Enabled="false" AllowMultiSelect="false" OnSelectItem="srpResource_SelectItem" ValidationGroup="ReservationResource" />

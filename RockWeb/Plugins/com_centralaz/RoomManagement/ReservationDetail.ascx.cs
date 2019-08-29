@@ -929,6 +929,16 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
 
             LoadResourceConflictMessage();
+
+            if ( resource.Note.IsNotNullOrWhiteSpace() )
+            {
+                nbResourceNote.Text = resource.Note;
+                nbResourceNote.Visible = true;
+            }
+            else
+            {
+                nbResourceNote.Visible = false;
+            }
         }
 
         /// <summary>
@@ -1006,6 +1016,16 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             {
                 nbQuantity.Text = reservationResource.Quantity.ToString();
                 srpResource.SetValue( reservationResource.ResourceId );
+
+                if ( reservationResource.Resource.Note.IsNotNullOrWhiteSpace() )
+                {
+                    nbResourceNote.Text = reservationResource.Resource.Note;
+                    nbResourceNote.Visible = true;
+                }
+                else
+                {
+                    nbResourceNote.Visible = false;
+                }
             }
             else
             {
