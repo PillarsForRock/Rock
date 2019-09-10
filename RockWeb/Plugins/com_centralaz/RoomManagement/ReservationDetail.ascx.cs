@@ -254,14 +254,22 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 if ( pnlDetails.Visible )
                 {
                     int? reservationId = PageParameter( "ReservationId" ).AsIntegerOrNull();
-                    if ( reservationId.HasValue && reservationId.Value > 0 )
+                    if ( reservationId.HasValue )
                     {
                         var reservation = new ReservationService( new RockContext() ).Get( reservationId.Value );
+                        if ( reservation == null )
+                        {
+                            reservation = new Reservation();
+                            reservation.ReservationType = ReservationType;
+                            reservation.ReservationTypeId = ReservationType.Id;
+                        }
+
                         if ( reservation != null )
                         {
                             reservation.LoadAttributes();
-                            BuildAttributeEdits( reservation, true );
+                            BuildAttributeEdits( reservation, false );
                         }
+
                     }
                 }
 
@@ -743,10 +751,10 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             if ( reservation == null )
             {
                 reservation = new Reservation();
+                reservation.ReservationType = ReservationType;
+                reservation.ReservationTypeId = ReservationType.Id;
             }
 
-            phAttributeEdits.Controls.Clear();
-            reservation.LoadAttributes();
             BuildAttributeEdits( reservation, true );
 
             SetRequiredFieldsBasedOnReservationType( ReservationType );
@@ -1801,6 +1809,9 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 hfReservationId.SetValue( reservation.Id );
                 SetRequiredFieldsBasedOnReservationType( ReservationType, reservation );
 
+                BuildAttributeEdits( reservation, true );
+
+
                 sbSchedule.iCalendarContent = string.Empty;
                 if ( reservation.Schedule != null )
                 {
@@ -1941,7 +1952,12 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
         private void BuildAttributeEdits( Reservation reservation, bool setValues )
         {
+            phAttributeEdits.Controls.Clear();
+
+            reservation.ReservationType = ReservationType;
+            reservation.ReservationTypeId = ReservationType.Id;
             reservation.LoadAttributes();
+
             if ( reservation.Attributes.Count() > 0 )
             {
                 var headingTitle = new HtmlGenericControl( "h3" );

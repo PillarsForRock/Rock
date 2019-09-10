@@ -265,7 +265,7 @@
                             </Rock:PanelWidget>
                         </div>
                     </div>
-                    <asp:PlaceHolder ID="phAttributeEdits" runat="server"  EnableViewState="false" />
+                    <Rock:DynamicPlaceholder ID="phAttributeEdits" runat="server" />
                     <asp:PlaceHolder ID="phLocationAnswers" runat="server" EnableViewState="false" />
                     <asp:PlaceHolder ID="phResourceAnswers" runat="server" EnableViewState="false" />
                     <div class="actions">
