@@ -248,29 +248,24 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
             else
             {
-                // ShowDialog();
-
-                // Rebuild the attribute controls on postback
-                if ( pnlDetails.Visible )
+                Reservation reservation = null;
+                int? reservationId = PageParameter( "ReservationId" ).AsIntegerOrNull();
+                if ( reservationId.HasValue )
                 {
-                    int? reservationId = PageParameter( "ReservationId" ).AsIntegerOrNull();
-                    if ( reservationId.HasValue )
-                    {
-                        var reservation = new ReservationService( new RockContext() ).Get( reservationId.Value );
-                        if ( reservation == null )
-                        {
-                            reservation = new Reservation();
-                            reservation.ReservationType = ReservationType;
-                            reservation.ReservationTypeId = ReservationType.Id;
-                        }
+                    reservation = new ReservationService( new RockContext() ).Get( reservationId.Value );
+                }
 
-                        if ( reservation != null )
-                        {
-                            reservation.LoadAttributes();
-                            BuildAttributeEdits( reservation, false );
-                        }
+                if ( reservation == null )
+                {
+                    reservation = new Reservation();
+                    reservation.ReservationType = ReservationType;
+                    reservation.ReservationTypeId = ReservationType.Id;
+                }
 
-                    }
+                if ( reservation != null )
+                {
+                    reservation.LoadAttributes();
+                    BuildAttributeEdits( reservation, false );
                 }
 
                 LoadQuestionsAndAnswers();
