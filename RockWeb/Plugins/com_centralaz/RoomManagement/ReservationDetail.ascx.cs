@@ -249,6 +249,22 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             else
             {
                 // ShowDialog();
+
+                // Rebuild the attribute controls on postback
+                if ( pnlDetails.Visible )
+                {
+                    int? reservationId = PageParameter( "ReservationId" ).AsIntegerOrNull();
+                    if ( reservationId.HasValue && reservationId.Value > 0 )
+                    {
+                        var reservation = new ReservationService( new RockContext() ).Get( reservationId.Value );
+                        if ( reservation != null )
+                        {
+                            reservation.LoadAttributes();
+                            BuildAttributeEdits( reservation, true );
+                        }
+                    }
+                }
+
                 LoadQuestionsAndAnswers();
             }
         }
@@ -517,6 +533,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                     string newPerson = ppAdministrativeContact.PersonName;
                     History.EvaluateChange( changes, "Administrative Contact", prevPerson, newPerson );
                 }
+
                 reservation.AdministrativeContactPersonAliasId = ppAdministrativeContact.PersonAliasId;
 
                 History.EvaluateChange( changes, "Administrative Contact Phone Number", reservation.AdministrativeContactPhone, PhoneNumber.FormattedNumber( PhoneNumber.DefaultCountryCode(), pnAdministrativeContactPhone.Number ) );
@@ -524,6 +541,9 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
 
                 History.EvaluateChange( changes, "Administrative Contact Email", reservation.AdministrativeContactEmail, tbAdministrativeContactEmail.Text );
                 reservation.AdministrativeContactEmail = tbAdministrativeContactEmail.Text;
+
+                reservation.LoadAttributes( rockContext );
+                Rock.Attribute.Helper.GetEditValues( phAttributeEdits, reservation );
 
                 foreach ( var reservationLocation in reservation.ReservationLocations )
                 {
@@ -600,6 +620,8 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                     {
                         reservationResource.SaveAttributeValues( rockContext );
                     }
+
+                    reservation.SaveAttributeValues( rockContext );
 
                     saveSuccess = true;
                 } );
@@ -717,8 +739,17 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 ddlMinistry.Items.Add( new ListItem( ministry.Name, ministry.Id.ToString().ToUpper() ) );
             }
 
-            SetRequiredFieldsBasedOnReservationType( ReservationType );
+            var reservation = new ReservationService( rockContext ).Get( hfReservationId.Value.AsInteger() );
+            if ( reservation == null )
+            {
+                reservation = new Reservation();
+            }
 
+            phAttributeEdits.Controls.Clear();
+            reservation.LoadAttributes();
+            BuildAttributeEdits( reservation, true );
+
+            SetRequiredFieldsBasedOnReservationType( ReservationType );
         }
 
         /// <summary>
@@ -1704,6 +1735,16 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
 
             hfApprovalState.Value = reservation.ApprovalState.ConvertToString();
+
+            reservation.LoadAttributes();
+            if ( reservation.AttributeValues.Where( av => av.Value != null && av.Value.Value.IsNotNullOrWhiteSpace() ).Count() > 0 )
+            {
+                var headingTitle = new HtmlGenericControl( "h3" );
+                headingTitle.InnerText = "Reservation Attributes";
+                phAttributes.Controls.Add( headingTitle );
+                Rock.Attribute.Helper.AddDisplayControls( reservation, phAttributes, showHeading: false );
+            }
+
             LoadQuestionsAndAnswers( false, true );
 
             gViewLocations.EntityTypeId = EntityTypeCache.Get<com.centralaz.RoomManagement.Model.ReservationLocation>().Id;
@@ -1744,8 +1785,6 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                     lblWorkflows.Visible = false;
                 }
             }
-
-
         }
 
         /// <summary>
@@ -1818,6 +1857,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                     reservationResource.IsNew = true;
                 }
 
+                reservation.LoadAttributes( rockContext );
                 LoadQuestionsAndAnswers( resetControls: true );
 
                 ddlCampus.Items.Clear();
@@ -1896,6 +1936,18 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 LoadPickers();
 
                 hfApprovalState.Value = reservation.ApprovalState.ConvertToString();
+            }
+        }
+
+        private void BuildAttributeEdits( Reservation reservation, bool setValues )
+        {
+            reservation.LoadAttributes();
+            if ( reservation.Attributes.Count() > 0 )
+            {
+                var headingTitle = new HtmlGenericControl( "h3" );
+                headingTitle.InnerText = "Reservation Attributes";
+                phAttributeEdits.Controls.Add( headingTitle );
+                Rock.Attribute.Helper.AddEditControls( reservation, phAttributeEdits, setValues, BlockValidationGroup );
             }
         }
 

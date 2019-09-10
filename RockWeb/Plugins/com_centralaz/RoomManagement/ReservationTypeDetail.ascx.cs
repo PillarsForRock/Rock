@@ -45,7 +45,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
     public partial class ReservationTypeDetail : RockBlock, IDetailBlock
     {
         #region Properties
-
+        private List<Attribute> AttributesState { get; set; }
         private List<ReservationMinistry> ReservationMinistriesState { get; set; }
         private List<ReservationWorkflowTrigger> ReservationWorkflowTriggersState { get; set; }
 
@@ -61,7 +61,17 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         {
             base.LoadViewState( savedState );
 
-            string json = ViewState["ReservationMinistriesState"] as string;
+            string json = ViewState["AttributesState"] as string;
+            if ( string.IsNullOrWhiteSpace( json ) )
+            {
+                AttributesState = new List<Attribute>();
+            }
+            else
+            {
+                AttributesState = JsonConvert.DeserializeObject<List<Attribute>>( json );
+            }
+
+            json = ViewState["ReservationMinistriesState"] as string;
             if ( string.IsNullOrWhiteSpace( json ) )
             {
                 ReservationMinistriesState = new List<ReservationMinistry>();
@@ -90,6 +100,13 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         {
             base.OnInit( e );
             bool editAllowed = IsUserAuthorized( Authorization.ADMINISTRATE );
+
+            gAttributes.DataKeyNames = new string[] { "Guid" };
+            gAttributes.Actions.ShowAdd = editAllowed;
+            gAttributes.Actions.AddClick += gAttributes_Add;
+            gAttributes.EmptyDataText = Server.HtmlEncode( None.Text );
+            gAttributes.GridRebind += gAttributes_GridRebind;
+            gAttributes.GridReorder += gAttributes_GridReorder;
 
             gMinistries.DataKeyNames = new string[] { "Guid" };
             gMinistries.Actions.ShowAdd = true;
@@ -121,6 +138,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             }
         }
 
+
         /// <summary>
         /// Saves any user control view-state changes that have occurred since the last page postback.
         /// </summary>
@@ -135,6 +153,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 ContractResolver = new Rock.Utility.IgnoreUrlEncodedKeyContractResolver()
             };
 
+            ViewState["AttributesState"] = JsonConvert.SerializeObject( AttributesState, Formatting.None, jsonSetting );
             ViewState["ReservationMinistriesState"] = JsonConvert.SerializeObject( ReservationMinistriesState, Formatting.None, jsonSetting );
             ViewState["ReservationWorkflowTriggersState"] = JsonConvert.SerializeObject( ReservationWorkflowTriggersState, Formatting.None, jsonSetting );
 
@@ -189,8 +208,8 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             var rockContext = new RockContext();
             var reservationType = new ReservationTypeService( rockContext ).Get( hfReservationTypeId.Value.AsInteger() );
 
+            LoadStateDetails( reservationType, rockContext );
             ShowEditDetails( reservationType );
-
         }
 
         /// <summary>
@@ -353,6 +372,10 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 {
                     rockContext.SaveChanges();
 
+                    /* Save Attributes */
+                    string qualifierValue = reservationType.Id.ToString();
+                    Helper.SaveAttributeEdits( AttributesState, new Reservation().TypeId, "ReservationTypeId", qualifierValue, rockContext );
+
                     reservationType = reservationTypeService.Get( reservationType.Id );
                     if ( reservationType != null )
                     {
@@ -423,6 +446,191 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                     pnlDetails.Visible = false;
                 }
             }
+        }
+
+        #endregion
+
+        #region Attributes Grid and Picker
+
+        /// <summary>
+        /// Handles the Add event of the gAttributes control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+        protected void gAttributes_Add( object sender, EventArgs e )
+        {
+            gAttributes_ShowEdit( Guid.Empty );
+        }
+
+        /// <summary>
+        /// Handles the Edit event of the gAttributes control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RowEventArgs" /> instance containing the event data.</param>
+        protected void gAttributes_Edit( object sender, RowEventArgs e )
+        {
+            Guid attributeGuid = ( Guid ) e.RowKeyValue;
+            gAttributes_ShowEdit( attributeGuid );
+        }
+
+        /// <summary>
+        /// Shows the edit attribute dialog.
+        /// </summary>
+        /// <param name="attributeGuid">The attribute unique identifier.</param>
+        protected void gAttributes_ShowEdit( Guid attributeGuid )
+        {
+            Attribute attribute;
+            if ( attributeGuid.Equals( Guid.Empty ) )
+            {
+                attribute = new Attribute();
+                attribute.FieldTypeId = FieldTypeCache.Get( Rock.SystemGuid.FieldType.TEXT ).Id;
+            }
+            else
+            {
+                attribute = AttributesState.First( a => a.Guid.Equals( attributeGuid ) );
+            }
+
+            edtAttributes.ActionTitle = ActionTitle.Edit( "Attribute for Reservations of Reservation Type " + tbName.Text );
+            var reservedKeyNames = new List<string>();
+            AttributesState.Where( a => !a.Guid.Equals( attributeGuid ) ).Select( a => a.Key ).ToList().ForEach( a => reservedKeyNames.Add( a ) );
+            edtAttributes.AllowSearchVisible = true;
+            edtAttributes.ReservedKeyNames = reservedKeyNames.ToList();
+            edtAttributes.SetAttributeProperties( attribute, typeof( ReservationType ) );
+
+            ShowDialog( "Attributes" );
+        }
+
+        /// <summary>
+        /// Handles the GridReorder event of the gAttributes control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="GridReorderEventArgs"/> instance containing the event data.</param>
+        protected void gAttributes_GridReorder( object sender, GridReorderEventArgs e )
+        {
+            SortAttributes( AttributesState, e.OldIndex, e.NewIndex );
+            BindAttributesGrid();
+        }
+
+        /// <summary>
+        /// Handles the Delete event of the gAttributes control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RowEventArgs" /> instance containing the event data.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        protected void gAttributes_Delete( object sender, RowEventArgs e )
+        {
+            Guid attributeGuid = ( Guid ) e.RowKeyValue;
+            AttributesState.RemoveEntity( attributeGuid );
+
+            BindAttributesGrid();
+        }
+
+        /// <summary>
+        /// Handles the GridRebind event of the gAttributes control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+        protected void gAttributes_GridRebind( object sender, EventArgs e )
+        {
+            BindAttributesGrid();
+        }
+
+        /// <summary>
+        /// Handles the SaveClick event of the dlgReservationTypeAttribute control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void dlgReservationTypeAttribute_SaveClick( object sender, EventArgs e )
+        {
+            Rock.Model.Attribute attribute = new Rock.Model.Attribute();
+            edtAttributes.GetAttributeProperties( attribute );
+
+            // Controls will show warnings
+            if ( !attribute.IsValid )
+            {
+                return;
+            }
+
+            if ( AttributesState.Any( a => a.Guid.Equals( attribute.Guid ) ) )
+            {
+                attribute.Order = AttributesState.Where( a => a.Guid.Equals( attribute.Guid ) ).FirstOrDefault().Order;
+                AttributesState.RemoveEntity( attribute.Guid );
+            }
+            else
+            {
+                attribute.Order = AttributesState.Any() ? AttributesState.Max( a => a.Order ) + 1 : 0;
+            }
+
+            AttributesState.Add( attribute );
+            ReOrderAttributes( AttributesState );
+            BindAttributesGrid();
+            HideDialog();
+        }
+
+        /// <summary>
+        /// Binds the Reservation Type attributes grid.
+        /// </summary>
+        private void BindAttributesGrid()
+        {
+            gAttributes.DataSource = AttributesState
+                         .OrderBy( a => a.Order )
+                         .ThenBy( a => a.Name )
+                         .Select( a => new
+                         {
+                             a.Id,
+                             a.Guid,
+                             a.Name,
+                             a.Description,
+                             FieldType = FieldTypeCache.GetName( a.FieldTypeId ),
+                             a.IsRequired,
+                             a.IsGridColumn,
+                             a.AllowSearch
+                         } )
+                         .ToList();
+            gAttributes.DataBind();
+        }
+
+        /// <summary>
+        /// Reorders the attribute list.
+        /// </summary>
+        /// <param name="itemList">The item list.</param>
+        /// <param name="oldIndex">The old index.</param>
+        /// <param name="newIndex">The new index.</param>
+        private void SortAttributes( List<Attribute> attributeList, int oldIndex, int newIndex )
+        {
+            var movedItem = attributeList.Where( a => a.Order == oldIndex ).FirstOrDefault();
+            if ( movedItem != null )
+            {
+                if ( newIndex < oldIndex )
+                {
+                    // Moved up
+                    foreach ( var otherItem in attributeList.Where( a => a.Order < oldIndex && a.Order >= newIndex ) )
+                    {
+                        otherItem.Order = otherItem.Order + 1;
+                    }
+                }
+                else
+                {
+                    // Moved Down
+                    foreach ( var otherItem in attributeList.Where( a => a.Order > oldIndex && a.Order <= newIndex ) )
+                    {
+                        otherItem.Order = otherItem.Order - 1;
+                    }
+                }
+
+                movedItem.Order = newIndex;
+            }
+        }
+
+        /// <summary>
+        /// Reorders the attributes.
+        /// </summary>
+        /// <param name="attributeList">The attribute list.</param>
+        private void ReOrderAttributes( List<Attribute> attributeList )
+        {
+            attributeList = attributeList.OrderBy( a => a.Order ).ToList();
+            int order = 0;
+            attributeList.ForEach( a => a.Order = order++ );
         }
 
         #endregion
@@ -857,6 +1065,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                     }
                     else
                     {
+                        LoadStateDetails( reservationType, rockContext );
                         ShowEditDetails( reservationType );
                     }
                 }
@@ -916,6 +1125,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             ReservationWorkflowTriggersState = reservationType.ReservationWorkflowTriggers.ToList();
             ReservationMinistriesState = reservationType.ReservationMinistries.ToList();
 
+            BindAttributesGrid();
             BindReservationWorkflowTriggersGrid();
             BindReservationMinistriesGrid();
         }
@@ -969,6 +1179,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
             hfReservationTypeId.SetValue( reservationType.Id );
             ReservationWorkflowTriggersState = null;
             ReservationMinistriesState = null;
+            AttributesState = null;
 
             lReadOnlyTitle.Text = reservationType.Name.FormatAsHtmlTitle();
             lReservationTypeDescription.Text = reservationType.Description.ScrubHtmlAndConvertCrLfToBr();
@@ -1027,7 +1238,9 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         {
             switch ( hfActiveDialog.Value )
             {
-
+                case "ATTRIBUTES":
+                    dlgAttribute.Show();
+                    break;
                 case "RESERVATIONMINISTRIES":
                     dlgMinistries.Show();
                     break;
@@ -1038,12 +1251,33 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
         }
 
         /// <summary>
+        /// Loads the state details.
+        /// </summary>
+        /// <param name="connectionType">Type of the connection.</param>
+        /// <param name="rockContext">The rock context.</param>
+        private void LoadStateDetails( ReservationType reservationType, RockContext rockContext )
+        {
+            var attributeService = new AttributeService( rockContext );
+            AttributesState = attributeService
+                .GetByEntityTypeId( new Reservation().TypeId, true ).AsQueryable()
+                .Where( a =>
+                    a.EntityTypeQualifierColumn.Equals( "ReservationTypeId", StringComparison.OrdinalIgnoreCase ) &&
+                    a.EntityTypeQualifierValue.Equals( reservationType.Id.ToString() ) )
+                .OrderBy( a => a.Order )
+                .ThenBy( a => a.Name )
+                .ToList();
+        }
+
+        /// <summary>
         /// Hides the dialog.
         /// </summary>
         private void HideDialog()
         {
             switch ( hfActiveDialog.Value )
             {
+                case "ATTRIBUTES":
+                    dlgAttribute.Hide();
+                    break;
                 case "RESERVATIONMINISTRIES":
                     dlgMinistries.Hide();
                     break;

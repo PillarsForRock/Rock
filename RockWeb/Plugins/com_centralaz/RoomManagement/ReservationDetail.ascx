@@ -118,8 +118,11 @@
                             </div>
                         </div>
                     </div>
+
+                    <asp:PlaceHolder ID="phAttributes" runat="server"></asp:PlaceHolder>
                     <asp:PlaceHolder ID="phViewLocationAnswers" runat="server" EnableViewState="false" />
                     <asp:PlaceHolder ID="phViewResourceAnswers" runat="server" EnableViewState="false" />
+
                     <div class="row">
                         <div class="col-md-6">
                             <Rock:ModalAlert ID="mdWorkflowLaunched" runat="server" />
@@ -262,6 +265,7 @@
                             </Rock:PanelWidget>
                         </div>
                     </div>
+                    <asp:PlaceHolder ID="phAttributeEdits" runat="server"  EnableViewState="false" />
                     <asp:PlaceHolder ID="phLocationAnswers" runat="server" EnableViewState="false" />
                     <asp:PlaceHolder ID="phResourceAnswers" runat="server" EnableViewState="false" />
                     <div class="actions">
