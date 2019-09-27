@@ -1,0 +1,9 @@
+0) Pull latest from Github
+1) Update the version number in this folder
+2) Open the CentralAZ solution in the correct branch
+3) Set to Release mode
+4) Build solution
+5) Go find the X.Y.Z folder under \builds\
+6) Update the package with the latest version.
+7) Use and update the Description, Documentation Url, Post Install Instructions, etc. from the last version.
+8) 
