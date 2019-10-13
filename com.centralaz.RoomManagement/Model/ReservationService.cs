@@ -61,8 +61,11 @@ namespace com.centralaz.RoomManagement.Model
             {
                 filterEndDateTime = filterEndDateTime.AddDays( 1 ).AddMilliseconds( -1 );
             }
-            var test = qry.ToList();
-            var reservations = qry.Where( r => r.Schedule.iCalendarContent.Contains( "RRULE" ) || r.Schedule.iCalendarContent.Contains( "RDATE" ) ||
+
+            var reservations = qry
+                .Where( r => r.FirstOccurrenceStartDateTime == null || r.FirstOccurrenceStartDateTime <= filterEndDateTime )
+                .Where( r => r.LastOccurrenceEndDateTime == null || r.LastOccurrenceEndDateTime >= filterStartDateTime )
+                .Where( r => r.Schedule.iCalendarContent.Contains( "RRULE" ) || r.Schedule.iCalendarContent.Contains( "RDATE" ) ||
                         (
                             r.Schedule.EffectiveStartDate >= qryStartDateTime &&
                             r.Schedule.EffectiveEndDate <= qryEndDateTime )
@@ -484,6 +487,27 @@ namespace com.centralaz.RoomManagement.Model
                     }
                 }
             }
+        }
+
+        public Reservation SetFirstLastOccurrenceDateTimes( Reservation reservation )
+        {
+            var occurrences = reservation.GetReservationTimes( DateTime.MinValue, DateTime.MaxValue ).ToList();
+            if ( occurrences.Count > 0 )
+            {
+                if ( reservation.FirstOccurrenceStartDateTime == null )
+                {
+                    var reservationOccurrence = occurrences.First();
+                    reservation.FirstOccurrenceStartDateTime = reservationOccurrence.StartDateTime.AddMinutes( -reservation.SetupTime ?? 0 );
+                }
+
+                if ( reservation.LastOccurrenceEndDateTime == null )
+                {
+                    var reservationOccurrence = occurrences.Last();
+                    reservation.LastOccurrenceEndDateTime = reservationOccurrence.EndDateTime.AddMinutes( reservation.CleanupTime ?? 0 );
+                }
+            }
+
+            return reservation;
         }
 
         #endregion

@@ -595,6 +595,7 @@ namespace RockWeb.Plugins.com_centralaz.RoomManagement
                 }
 
                 reservation = reservationService.UpdateApproval( reservation, hfApprovalState.Value.ConvertToEnum<ReservationApprovalState>( ReservationApprovalState.Unapproved ), CurrentPerson );
+                reservation = reservationService.SetFirstLastOccurrenceDateTimes( reservation );
 
                 changes = EvaluateLocationAndResourceChanges( changes, oldReservation, reservation );
 

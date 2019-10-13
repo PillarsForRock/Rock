@@ -142,6 +142,24 @@ namespace com.centralaz.RoomManagement.Model
         [RegularExpression( @"[\w\.\'_%-]+(\+[\w-]*)?@([\w-]+\.)+[\w-]+", ErrorMessage = "The Email address is invalid" )]
         public string AdministrativeContactEmail { get; set; }
 
+        /// <summary>
+        /// Gets or sets the first occurrence date time.
+        /// </summary>
+        /// <value>
+        /// The first occurrence date time.
+        /// </value>
+        [DataMember]
+        public DateTime? FirstOccurrenceStartDateTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last occurrence date time.
+        /// </summary>
+        /// <value>
+        /// The last occurrence date time.
+        /// </value>
+        [DataMember]
+        public DateTime? LastOccurrenceEndDateTime { get; set; }
+
         #endregion
 
         #region Virtual Properties
@@ -230,7 +248,7 @@ namespace com.centralaz.RoomManagement.Model
         {
             get
             {
-               return GetFriendlyReservationScheduleText();
+                return GetFriendlyReservationScheduleText();
             }
             private set
             {
@@ -282,6 +300,7 @@ namespace com.centralaz.RoomManagement.Model
                             StartDateTime = DateTime.SpecifyKind( a.Period.StartTime.Value, DateTimeKind.Local ),
                             EndDateTime = DateTime.SpecifyKind( a.Period.EndTime.Value, DateTimeKind.Local )
                         } )
+                        .OrderBy(a=> a.StartDateTime)
                         .ToList();
                     {
                         // ensure the the datetime is DateTimeKind.Local since iCal returns DateTimeKind.UTC
