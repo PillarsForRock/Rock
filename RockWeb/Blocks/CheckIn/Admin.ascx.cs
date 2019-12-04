@@ -82,6 +82,7 @@ namespace RockWeb.Blocks.CheckIn
                 if ( CurrentKioskId.HasValue && CurrentGroupTypeIds.Any() && CurrentCheckinTypeId.HasValue && !themeRedirect )
                 {
                     // Save the check-in state
+                    CurrentCheckInState = null;
                     SaveState();
 
                     // Navigate to the check-in home (welcome) page, passing family ID if it was included in the query string
