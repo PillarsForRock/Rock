@@ -2364,10 +2364,13 @@ Sys.Application.add_load(function () {
                         try
                         {
                             string contextItem = Rock.Security.Encryption.DecryptString( cookieValue );
-                            string[] parts = contextItem.Split( '|' );
-                            if ( parts.Length == 2 )
+                            if ( contextItem != null )
                             {
-                                ModelContext.AddOrReplace( parts[0], new Data.KeyEntity( parts[1] ) );
+                                string[] parts = contextItem.Split( '|' );
+                                if ( parts.Length == 2 )
+                                {
+                                    ModelContext.AddOrReplace( parts[0], new Data.KeyEntity( parts[1] ) );
+                                }
                             }
                         }
                         catch
